@@ -1,0 +1,101 @@
+
+    <style>
+        body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .sidebar .nav-link {
+            color: #333;
+        }
+
+        .sidebar .nav-link.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            margin-bottom: 10px;
+        }
+
+        .rating {
+            color: #FFD700;
+        }
+
+        .delete-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: red;
+            cursor: pointer;
+        }
+
+        .wishlist-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+
+    
+
+    
+
+            <div class="col-md-9 content">
+                <div class="wishlist-title">
+                    Wishlist (90)
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="https://via.placeholder.com/200" class="card-img-top" alt="Plant Image">
+                            <div class="card-body">
+                                <h5 class="card-title">Plant Name</h5>
+                                <p class="card-text">Category: Indoor Plant</p>
+                                <p class="card-text">Price: $10.00</p>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                <i class="fas fa-trash-alt delete-icon" title="Delete"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Repeat similar structure for other wishlist items -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+   

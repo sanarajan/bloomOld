@@ -1,0 +1,270 @@
+
+    <style>
+        /* Custom Styles */
+        .content-container {
+            width: 70%; /* Full width of the viewport */
+            padding: 0 15px; /* Optional padding for content spacing */
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .content-row {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 20px; /* Increased padding for better spacing */
+            margin: 15px 0; /* Space between rows (top and bottom) */
+            border-radius: 8px; /* Rounded corners */
+            background-color: #fff; /* White background */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
+            box-sizing: border-box;
+            align-items: center; /* Align items vertically center */
+        }
+
+        .content-col {
+            flex: 1;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .content-image img {
+            max-width: 100%;
+            max-height: 75px;
+        }
+
+        .content-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-size: 16px; /* Adjust font size as needed */
+            font-weight: bold;
+        }
+
+        .product-category {
+            font-size: 14px; /* Adjust font size as needed */
+            color: #555;
+        }
+
+        .content-price {
+            text-align: right;
+            padding-right: 20px; /* Extra space from the next field */
+        }
+
+        .content-info {
+            text-align: right;
+        }
+
+        .content-info div {
+            margin-bottom: 5px; /* Adjust spacing between lines */
+        }
+
+        .rate-review {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .rate-review img {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+
+        .cancel-button {
+            background-color: #d9534f; /* Red color for the button */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px; /* Adjust font size as needed */
+        }
+
+        .cancel-button:hover {
+            background-color: #c9302c; /* Darker red on hover */
+        }
+
+        .footer {
+            width: 100%;
+            background: #000; /* Ensure footer background color is black */
+            color: #fff; /* Ensure text color is white */
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            bottom: 0;
+            /* Add your existing footer styles here */
+        }
+        .orders-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+
+
+    <!-- Main Content -->
+    <div class="content-container">
+      
+        <!-- Repeat .content-row for additional items -->
+    </div>
+    {{!-- modal for cancel --}}
+    <!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" role="dialog" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="cancelReason">Select Reason for Cancellation</label>
+                    <select class="form-control" id="cancelReason" onchange="handleReasonChange(this)">
+                        <option value="" disabled selected>Select a reason</option>
+                        <option value="Found a better price">Found a better price</option>
+                        <option value="Order delay">Order delay</option>
+                        <option value="Changed my mind">Changed my mind</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group d-none" id="otherReasonContainer">
+                    <label for="otherReason">Please specify your reason</label>
+                    <textarea class="form-control" id="otherReason" rows="3"></textarea>
+                </div>
+                <input type="hidden" id="orderIdToCancel">
+                  <input type="text" id="productIdToCancel">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitCancelOrder()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+               fetchOrder()
+               
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        });
+        function fetchOrder() {
+        fetch(`/fetchOrders`, {
+            method: 'GET'
+        })
+            .then(response => response.json())
+            .then(data => {console.log(data)
+                if (data) {
+                   
+                    renderOrders(data);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Remove Failed',
+                        text: 'Failed to remove item from cart.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+        function renderOrders(orders) {
+            const container = document.querySelector('.content-container');
+            container.innerHTML += '<h4 class="orders-title mt-5">My Orders</h4>'; // Add title
+
+       orders.forEach(order => {
+    order.orderedProducts.forEach(product => {
+      const orderElement = document.createElement('div');
+      orderElement.className = 'content-row';
+      orderElement.innerHTML = `
+        <div class="content-col">
+          <div class="content-image">
+            <img src="${product.image || 'https://via.placeholder.com/75'}" alt="Product Image">
+          </div>
+        </div>
+        <div class="content-col">
+          <div class="content-details">
+            <div class="product-name">${product.productName}</div>
+            <div class="product-category">${product.category.categoryName}</div>
+          </div>
+        </div>
+        <div class="content-col">
+          ${product.orderStatus === "Order Placed" ? `<button class="cancel-button" onclick="cancelOrder('${order._id}','${product.productId}')">Cancel</button>` : ''}
+        </div>
+        <div class="content-col content-price">
+          ₹${product.itemTotalPrice}
+        </div>
+        <div class="content-col content-info">
+          ${product.orderStatus === "Cancelled" || product.orderStatus === "Pending Cancellation" ? `<div>${product.orderStatus} on ${product.deliveryDate}</div><div>Reason: ${product.cancellation.reason || 'Not specified'}</div>` : ''}
+          ${product.orderStatus === "Shipped" || product.orderStatus === "Order Placed" ? `<div>${product.orderStatus} - Delivery expected by ${product.deliveryDate}</div>` : ''}
+          ${product.orderStatus === "Delivered" ? `<div>${product.orderStatus} on ${product.deliveryDate}</div>` : ''}
+          ${product.orderStatus === "Delivered" ? `<div class="rate-review"><img src="https://via.placeholder.com/16" alt="Rate Icon"><a href="#">Rate & Review Product</a></div>` : ''}
+        </div>
+      `;
+
+      container.appendChild(orderElement);
+    });
+  });
+        }
+
+       
+  //cancel order
+
+        function handleReasonChange(select) {
+    const otherReasonContainer = document.getElementById('otherReasonContainer');
+    if (select.value === 'Other') {
+        otherReasonContainer.classList.remove('d-none');
+    } else {
+        otherReasonContainer.classList.add('d-none');
+    }
+}
+
+function cancelOrder(orderId,prodId) {
+    document.getElementById('orderIdToCancel').value = orderId;
+    document.getElementById('productIdToCancel').value = prodId;
+    $('#cancelOrderModal').modal('show');
+}
+
+async function submitCancelOrder() {
+    const orderId = document.getElementById('orderIdToCancel').value;
+    const cancelReason = document.getElementById('cancelReason').value;
+    const otherReason = document.getElementById('otherReason').value;
+    const productId = document.getElementById('productIdToCancel').value;
+
+    const reason = cancelReason === 'Other' ? otherReason : cancelReason;
+
+    if (!reason) {
+        alert('Please select or enter a reason for cancellation.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/cancelOrder`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason,orderId,productId })
+        });
+        const result = await response.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Failed to cancel order');
+        }
+    } catch (error) {
+        console.error('Error canceling order:', error);
+    }
+}
+
+    </script>
+    <!-- Footer -->
+   
