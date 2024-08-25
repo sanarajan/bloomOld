@@ -57,7 +57,7 @@
 
     .content-price {
         text-align: left;
-        padding-right: 20px;
+        padding-right: 11px;
         /* Extra space from the next field */
     }
 
@@ -265,10 +265,12 @@
           ₹${product.itemTotalPrice}
         </div>
         <div class="content-col content-info">
-          ${product.orderStatus === "Cancelled" || product.orderStatus === "Pending Cancellation" ? `<div>${product.orderStatus} on ${product.deliveryDate}</div><div>Reason: ${product.cancellation.reason || 'Not specified'}</div>` : ''}
-          ${product.orderStatus === "Shipped" || product.orderStatus === "Order Placed" ? `<div>${product.orderStatus} - Delivery expected by ${product.deliveryDate}</div>` : ''}
-          ${product.orderStatus === "Delivered" ? `<div>${product.orderStatus} on ${product.deliveryDate}</div>` : ''}
-          ${product.orderStatus === "Delivered" ? `<div class="rate-review"><img src="https://via.placeholder.com/16" alt="Rate Icon"><a href="#">Rate & Review Product</a></div>` : ''}
+          ${product.orderStatus === "Cancelled" || product.orderStatus === "Pending Cancellation" ? `<div style="margin-left:-30px">  <i class="fas fa-times-circle" style="color:red;"></i>${product.orderStatus} on ${product.deliveryDate}</div><div>Reason: ${product.cancellation.reason || 'Not specified'}</div>` : ''}
+          ${product.orderStatus === "Shipped" || product.orderStatus === "Order Placed" ? `<div style="margin-left:-30px"> <i class="fas fa-truck" style="color:blue;"></i>${product.orderStatus} - Delivery expected by ${product.deliveryDate}</div>` : ''}
+          ${product.orderStatus === "Delivered" ? `<div style="margin-left:-25px"> <i class="fas fa-box" style="color:green;"></i>${product.orderStatus} on ${product.deliveryDate}</div>` : ''}
+        ${product.orderStatus === "Returned" || product.orderStatus === "Returned" ? `<div style="margin-left:-30px">  <i class="fas fa-undo" style="color:orange;"></i> Product ${product.orderStatus}  </div>` : ''}
+
+          ${product.orderStatus === "Delivered" ? `<div style="margin-left:-30px" class="rate-review"><img src="https://via.placeholder.com/16" alt="Rate Icon"><a href="#">Rate & Review Product</a></div>` : ''}
         </div>
       `;
 
@@ -339,9 +341,8 @@ function returnOrder(orderId, prodId) {
         const returnReason = document.getElementById('returnReason').value;
         const otherReason = document.getElementById('otherReturnReason').value;
         const productId = document.getElementById('productIdToReturn').value;
-
         const reason = returnReason === 'Other' ? otherReason : returnReason;
-
+        alert("gfj"+orderId+"+"+returnReason+"+"+otherReason+"+"+productId+"+"+reason)
         if (!reason) {
             Swal.fire({
                 icon: 'warning',
@@ -362,7 +363,14 @@ function returnOrder(orderId, prodId) {
             });
             const result = await response.json();
             if (result.success) {
-                location.reload();
+               Swal.fire({
+                icon: 'success',
+                title: 'Returned!',
+                text: 'Your product has been returned successfully.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload(); // Reload the page after the user clicks 'OK'
+            });
             } else {
                 Swal.fire({
                     icon: 'error',
