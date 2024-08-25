@@ -165,6 +165,31 @@
             font-size: 16px;
             font-weight: bold;
         }
+
+        .apply-coupon {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .apply-coupon:hover {
+            background-color: #218838;
+        }
+
+        #selectedCoupon {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
@@ -221,12 +246,15 @@
                     <input type="hidden" name="userId" value="{{orderDetails.userId}}">
                     <input type="hidden" name="cartId" value="{{orderDetails.cartId}}">
                     <input type="hidden" name="totalPrice" value="{{orderDetails.totalPrice}}">
-                    <input type="hidden" name="discount" value="{{orderDetails.discount}}">
+                    <input type="hidden" name="discount" id="discount" value="{{orderDetails.discount}}">
                     <input type="hidden" name="deliveryCharges" value="{{orderDetails.deliveryCharges}}">
                     <input type="hidden" name="packingCharge" value="{{orderDetails.packagingFee}}">
-                    <input type="hidden" name="totalSavings" value="{{orderDetails.totalSavings}}">
-                    <input type="hidden" name="totalAmount" value="{{orderDetails.totalAmount}}">
-                    <input type="text" name="productIds"
+                    <input type="hidden" name="totalSavings" id="totalSavings" value="{{orderDetails.totalSavings}}">
+                    <input type="hidden" name="totalAmount" id="totalAmount" value="{{orderDetails.totalAmount}}">
+                    <input type="hidden" name="selectedCouponId" id="selectedCouponId">
+                    <!-- Hidden field for coupon ID -->
+
+                    <input type="hidden" name="productIds"
                         value="{{#each orderDetails.cartItems}}{{this.product._id}}{{#unless @last}},{{/unless}}{{/each}}">
                     <button class="pay-button" type="submit">Pay</button>
                 </form>
@@ -240,19 +268,55 @@
             <div class="summary-detail">Price ({{orderDetails.itemCount}} items)
                 <span>{{orderDetails.totalPrice}}</span>
             </div>
-            <div class="summary-detail">Discount <span>-{{orderDetails.discount}}</span></div>
+            <button class="apply-coupon" data-toggle="modal" data-target="#couponModal">Apply Coupon</button>
+            <input type="text" id="selectedCoupon" placeholder="Selected Coupon" readonly>
+            <div class="summary-detail">Discount <span id="discountShow">{{orderDetails.discount}}</span></div>
             <div class="summary-detail">Delivery Charges <span>${{orderDetails.deliveryCharges}}</span></div>
             <div class="summary-detail">Secured Packaging Fee <span>{{orderDetails.packagingFee}}</span></div>
-            <div class="summary-detail" style="color: green;">You saved <span>{{orderDetails.totalSavings}}</span> on
+            <div class="summary-detail" style="color: green;">You saved <span
+                    id="savedAmt">{{orderDetails.totalSavings}}</span> on
                 this order</div>
 
             <div class="summary-detail"><strong>Total Amount</strong>
-                <span><strong>{{orderDetails.totalAmount}}</strong></span>
+                <span><strong id="grandTotalAmt">{{orderDetails.totalAmount}}</strong></span>
+                <input type="hidden" id="basicTotalAmt" value="{{orderDetails.totalAmount}}">
             </div>
         </div>
 
     </div>
+    {{!-- modal --}}
+    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">Select a Coupon</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {{#each coupons}}
+                        <li>
+                            <input type="radio" name="coupon" value="{{this._id}}" data-name="{{this.couponName}}"
+                                data-amount="{{this.discountValueHide}}" data-type="{{this.discountType}}">
+                            {{this.couponName}} - {{this.description}} ({{this.discountValue}} off)
+                        </li>
+                        {{/each}}
+                    </ul>
+                    <span id="coupon_err"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="clearCouponBtn">Clear</button>
 
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="applyCoupon()">Apply
+                        Coupon</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <footer class="footer">
         <!-- Your footer content here -->
     </footer>
@@ -270,6 +334,83 @@
                 orderSummaryHeader.textContent = 'Order Summary (2 items)';
             }
         }
+
+
+        //apply coupon
+        function toggleOrderSummary() {
+            const orderSummaryContent = document.getElementById('orderSummaryContent');
+            const orderSummaryHeader = document.querySelector('.order-summary-header');
+            if (orderSummaryContent.style.display === 'none' || orderSummaryContent.style.display === '') {
+                orderSummaryContent.style.display = 'block';
+                orderSummaryHeader.textContent = 'Order Summary';
+            } else {
+                orderSummaryContent.style.display = 'none';
+                orderSummaryHeader.textContent = 'Order Summary (2 items)';
+            }
+        }
+        // Apply Coupon and Close Modal
+        function applyCoupon() {
+            const selectedCouponElement = document.querySelector('input[name="coupon"]:checked');
+            const coupon_err = document.getElementById('coupon_err');
+            coupon_err.textContent = '';
+
+            if (selectedCouponElement) {
+                const selectedCoupon = selectedCouponElement.value;
+                const selectedCouponName = selectedCouponElement.getAttribute('data-name');
+                const couponAmount = parseFloat(selectedCouponElement.getAttribute('data-amount')) || 0;
+                const discountType = selectedCouponElement.getAttribute('data-type');
+                let totalAmount = parseFloat(document.getElementById('basicTotalAmt').value) || 0;
+                let discountShow = parseFloat(document.getElementById('discountShow').textContent) || 0;
+
+                let newTotalAmount;
+                let discountAmount = 0;
+
+                if (discountType === "Percentage") {
+                    const discountPercentage = couponAmount;
+                    discountAmount = totalAmount * (discountPercentage / 100);
+                    newTotalAmount = totalAmount - discountAmount;
+                } else if (discountType === "Amount") {
+                    discountAmount = couponAmount;
+                    newTotalAmount = totalAmount - discountAmount;
+                } else {
+                    coupon_err.textContent = 'Invalid discount type.';
+                    return;
+                }
+                // Ensure the new total amount does not go below zero
+                newTotalAmount = Math.max(newTotalAmount, 0);
+                // Update the elements
+                document.getElementById('selectedCoupon').value = selectedCouponName;
+                document.querySelector('input[name="selectedCouponId"]').value = selectedCoupon;
+                discountShow = discountAmount;
+                // Update text content with formatted values ,showing value
+                document.getElementById('discountShow').textContent = discountShow.toFixed(2);
+                document.getElementById('grandTotalAmt').textContent = newTotalAmount.toFixed(2);
+                document.getElementById('savedAmt').textContent = discountShow.toFixed(2);
+                //textboxes
+                document.getElementById('totalSavings').value = discountShow.toFixed(2);
+                document.getElementById('totalAmount').value = newTotalAmount.toFixed(2);
+                document.getElementById('discount').value = discountShow.toFixed(2);
+              
+                $('#couponModal').modal('hide');
+            } else {
+                coupon_err.textContent = 'Please select a coupon before applying.';
+            }
+        }
+        //clear coupon
+        document.getElementById('clearCouponBtn').addEventListener('click', () => {
+            document.getElementById('selectedCoupon').value = '';
+            document.getElementById('selectedCouponId').value = '';
+            document.getElementById('discount').value = '0';
+            document.getElementById('totalSavings').value = '0';
+
+            document.getElementById('discountShow').textContent = '0';
+            const totalAmount = parseFloat(document.getElementById('basicTotalAmt').value) || 0;
+            document.getElementById('grandTotalAmt').textContent = totalAmount;
+            document.getElementById('totalAmount').value = totalAmount;
+            document.getElementById('savedAmt').textContent = '0';
+            $('#couponModal').modal('hide');
+        });
+
     </script>
 </body>
 

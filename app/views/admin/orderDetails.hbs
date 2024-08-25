@@ -56,7 +56,7 @@
                 <td>{{productName}}</td>
                 <td>{{this.price}}</td>
                 <td>{{quantity}}</td>
-                <td class="text-end">{{itemTotalPrice}}</td>
+                <td id="totalAmt" class="text-end">{{itemTotalPrice}}</td>
                 <td>
                     <button style="background-color: {{this.btnColr}};"
                         class="btn btn-primary btn-sm update-status-btn">
@@ -71,6 +71,8 @@
                         <option value="Delivered" {{#if (eq orderStatus "Delivered" )}}selected{{/if}}>Delivered
                         </option>
                         <option value="Cancelled" {{#if (eq orderStatus "Cancelled" )}}selected{{/if}}>Cancelled
+                        </option>
+                         <option value="Returned" {{#if (eq orderStatus "Returned" )}}selected{{/if}}>Returned
                         </option>
                     </select>
                 </td>
@@ -87,12 +89,12 @@
         document.querySelectorAll('.status-select').forEach(function (selectBox) {
             selectBox.addEventListener('change', function () {
                 // var itemId =  document.getElementById('productId').value;
-                var status = this.value;
+                var status = this.value;alert(status)
                 var itemId = this.getAttribute('data-item-p');
                 // Fetch the necessary hidden fields
                 var orderId = document.getElementById('orderId').value;
                 var userId = document.getElementById('userId').value;
-
+                var totalAmt = document.getElementById('totalAmt').textContent;
                 fetch('/admin/updateOrderStatus', {
                     method: 'POST',
                     headers: {
@@ -102,7 +104,8 @@
                         status: status,
                         orderId: orderId,
                         productId: itemId,
-                        userId: userId
+                        userId: userId,
+                        totalAmt: totalAmt
                     })
                 })
                     .then(response => response.json())
