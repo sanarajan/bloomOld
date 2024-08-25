@@ -42,14 +42,14 @@
                   <div id="description_error" style="color: red;"></div>
                 </div>
               </div>
-             <div class="row mb-3">
+              <div class="row mb-3">
                 <label for="inputEmail3" class="col-sm-3 col-form-label">Status</label>
                 <div class="col-sm-9">
                   <select class="form-control" name="isActive" id="isActive">
-                   
 
-                     <option value="1"  {{ternary (eq category.isActive true) "selected" ""}}>Active</option>
-                    <option value="0"  {{ternary (eq category.isActive false) "selected" ""}}>Inactive</option>
+
+                    <option value="1" {{ternary (eq category.isActive true) "selected" "" }}>Active</option>
+                    <option value="0" {{ternary (eq category.isActive false) "selected" "" }}>Inactive</option>
                   </select>
                   <div id="" style="color: red;"></div>
                 </div>
@@ -69,8 +69,8 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     function categoryValidation(event) {
-      const categoryname = document.getElementById('categoryname').value;
-      const description = document.getElementById('description').value;
+      const categoryname = document.getElementById('categoryname').value.trim();
+      const description = document.getElementById('description').value.trim();
       const categoryname_error = document.getElementById('categoryname_error');
       const description_error = document.getElementById('description_error');
       if (!categoryname) {
@@ -124,8 +124,7 @@
       .then(response => response.json())
       .then(result => {
         if (result.success) {
-          console.log("ok")
-          alert('Category updated successfully');
+         
           window.location.href = '/admin/categories';
         } else {
           alert('Error updating category: ' + result.message);

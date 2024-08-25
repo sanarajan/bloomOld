@@ -228,7 +228,7 @@
 
 <div class="content-container">
     <!-- Cart Items Table -->
-     {{#if cartItems.length}}
+    {{#if cartItems.length}}
     <div class="cart-items" id="cart-items">
         {{#if cartItems.length}}
         {{#each cartItems}}
@@ -277,7 +277,7 @@
     <div class="cart-summary">
         <h4>Cart Summary</h4>
         <div class="summary-item">
-            <span>Price ({{totalItems}} items)</span>
+            <span>Price ({{productQuantity}} items)</span>
             <span>₹{{totalPrice}}</span>
         </div>
         <div class="summary-item">
@@ -363,10 +363,10 @@
                         text: data.message, // Show the error message from the server
                         confirmButtonText: 'OK'
                     }).then(() => {
-                       
+
                         // Revert the quantity to the previous valid value
                         quantityInput.value = oldQuantity;
-                       
+
                     });
                 }
             })

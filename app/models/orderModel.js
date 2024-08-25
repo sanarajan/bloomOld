@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 
 // Define the Order schema
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, unique: true, required: true },
-  
- 
+  orderId: { type: String, unique: true, required: true }, 
   paymentMethod: {
     type: String,
     enum: ['COD', 'Credit Card', 'Debit Card', 'Net Banking'],
@@ -31,6 +29,17 @@ const orderSchema = new mongoose.Schema({
     type: Number, 
     required: true 
   },
+  coupon: { 
+    type: String    
+  },
+  discount: { 
+    type: Number, 
+    required: true 
+  },
+  totalPrice: { 
+    type:Number, 
+    required: true 
+  },
   totalAmount: { 
     type:Number, 
     required: true 
@@ -53,7 +62,7 @@ const orderSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     orderStatus: {
       type: String,
-      enum: ['Order Placed','Pending','Pending Cancellation','Processing','Shipped','Delivered','Cancelled'],
+      enum: ['Order Placed','Pending','Pending Cancellation','Processing','Shipped','Delivered','Cancelled','Return','Returned'],
       default: 'Order Placed'
     },
     cancellation: {

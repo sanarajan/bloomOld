@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,42 +13,53 @@
             color: red;
             font-size: 0.875em;
         }
+
         .address-box {
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 15px;
             margin-bottom: 15px;
         }
+
         .address-form-section {
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 15px;
             margin-bottom: 15px;
-            display: none; /* Hide forms by default */
+            display: none;
+            /* Hide forms by default */
         }
+
         .address-form-section.active {
-            display: block; /* Show the active form */
+            display: block;
+            /* Show the active form */
         }
+
         .form-row {
             display: flex;
             flex-wrap: wrap;
         }
+
         .form-group {
             flex: 1;
             min-width: 200px;
             padding: 5px;
         }
-        .footer{
-            width:100%
+
+        .footer {
+            width: 100%
         }
     </style>
 </head>
+
 <body>
     <main role="main" class="content col-md-9">
         <input type="hidden" name="_id" id="_id" value="{{id}}">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Manage Addresses</h1>
-            <button class="btn btn-primary" onclick="showAddAddressForm()"><i class="fas fa-plus"></i> Add New Address</button>
+            <button class="btn btn-primary" onclick="showAddAddressForm()"><i class="fas fa-plus"></i> Add New
+                Address</button>
         </div>
         <div class="address-form-section" id="add-address-form">
             <h4>Add New Address</h4>
@@ -84,50 +96,53 @@
         </div>
         <div id="address-list">
             {{#each addresses}}
-                <div class="address-box" id="address-{{this._id}}">
-                    <p>{{this.house}}, {{this.place}}, {{this.city}}, {{this.district}}, {{this.state}}, {{this.pincode}}</p>
-                    <button class="btn btn-link" onclick="showEditForm('{{this._id}}')">Edit</button>
-                    <button class="btn btn-link text-danger" onclick="deleteAddress('{{this._id}}')">Delete</button>
-                    <div class="address-form-section" id="edit-form-{{this._id}}">
-                        <h4>Edit Address</h4>
-                        <div class="form-row">
-                            <div class="form-group ">
-                                <label for="editHouse-{{this._id}}">House</label>
-                                <input type="text" class="form-control" id="editHouse-{{this._id}}" value="{{this.house}}">
-                                <small id="editHouseError-{{this._id}}" class="form-text error"></small>
-                            </div>
-                            <div class="form-group  ">
-                                <label for="editPlace-{{this._id}}">Place</label>
-                                <input type="text" class="form-control" id="editPlace-{{this._id}}" value="{{this.place}}">
-                            </div>
-                            <div class="form-group ">
-                                <label for="editCity-{{this._id}}">City</label>
-                                <input type="text" class="form-control" id="editCity-{{this._id}}" value="{{this.city}}">
-                            </div>
-                            <div class="form-group ">
-                                <label for="editDistrict-{{this._id}}">District</label>
-                                <input type="text" class="form-control" id="editDistrict-{{this._id}}" value="{{this.district}}">
-                            </div>
-                            <div class="form-group ">
-                                <label for="editState-{{this._id}}">State</label>
-                                <input type="text" class="form-control" id="editState-{{this._id}}" value="{{this.state}}">
-                            </div>
-                            <div class="form-group ">
-                                <label for="editPincode-{{this._id}}">Pincode</label>
-                                <input type="text" class="form-control" id="editPincode-{{this._id}}" value="{{this.pincode}}">
-                                <small id="editPincodeError-{{this._id}}" class="form-text error"></small>
-                            </div>
+            <div class="address-box" id="address-{{this._id}}">
+                <p>{{this.house}}, {{this.place}}, {{this.city}}, {{this.district}}, {{this.state}}, {{this.pincode}}
+                </p>
+                <button class="btn btn-link" onclick="showEditForm('{{this._id}}')">Edit</button>
+                <button class="btn btn-link text-danger" onclick="deleteAddress('{{this._id}}')">Delete</button>
+                <div class="address-form-section" id="edit-form-{{this._id}}">
+                    <h4>Edit Address</h4>
+                    <div class="form-row">
+                        <div class="form-group ">
+                            <label for="editHouse-{{this._id}}">House</label>
+                            <input type="text" class="form-control" id="editHouse-{{this._id}}" value="{{this.house}}">
+                            <small id="editHouseError-{{this._id}}" class="form-text error"></small>
                         </div>
-                        <button class="btn btn-primary" onclick="saveEditedAddress('{{this._id}}')">Save</button>
-                        <button class="btn btn-secondary" onclick="cancelEditAddress('{{this._id}}')">Cancel</button>
+                        <div class="form-group  ">
+                            <label for="editPlace-{{this._id}}">Place</label>
+                            <input type="text" class="form-control" id="editPlace-{{this._id}}" value="{{this.place}}">
+                        </div>
+                        <div class="form-group ">
+                            <label for="editCity-{{this._id}}">City</label>
+                            <input type="text" class="form-control" id="editCity-{{this._id}}" value="{{this.city}}">
+                        </div>
+                        <div class="form-group ">
+                            <label for="editDistrict-{{this._id}}">District</label>
+                            <input type="text" class="form-control" id="editDistrict-{{this._id}}"
+                                value="{{this.district}}">
+                        </div>
+                        <div class="form-group ">
+                            <label for="editState-{{this._id}}">State</label>
+                            <input type="text" class="form-control" id="editState-{{this._id}}" value="{{this.state}}">
+                        </div>
+                        <div class="form-group ">
+                            <label for="editPincode-{{this._id}}">Pincode</label>
+                            <input type="text" class="form-control" id="editPincode-{{this._id}}"
+                                value="{{this.pincode}}">
+                            <small id="editPincodeError-{{this._id}}" class="form-text error"></small>
+                        </div>
                     </div>
+                    <button class="btn btn-primary" onclick="saveEditedAddress('{{this._id}}')">Save</button>
+                    <button class="btn btn-secondary" onclick="cancelEditAddress('{{this._id}}')">Cancel</button>
                 </div>
+            </div>
             {{/each}}
         </div>
     </main>
 
     <script>
-        let addresses = {{{json addresses}}};
+        let addresses = {{{ json addresses }}};
 
         function renderAddresses() {
             const addressList = document.getElementById('address-list');
@@ -200,262 +215,263 @@
             document.getElementById(`edit-form-${addressId}`).classList.remove('active');
         }
 
-       
+
         function clearErrors() {
-    // Clear any previous error messages
-    document.querySelectorAll('.error').forEach(element => element.textContent = '');
-}
-
-function showError(elementId, message) {
-    // Show error message
-    document.getElementById(elementId).textContent = message;
-}
-
-function hasSpecialCharacters(value) {
-    // Check for special characters
-    const regex = /[!@#$%^&*(),.?":{}|<>]/g;
-    return regex.test(value);
-}
-
-function isValidPincode(pincode) {
-    // Validate pincode (6 digits)
-    const regex = /^[0-9]{6}$/;
-    return regex.test(pincode);
-}
-
-async function saveNewAddress() {
-    const newHouse = document.getElementById('newHouse').value.trim();
-    const newPlace = document.getElementById('newPlace').value.trim();
-    const newCity = document.getElementById('newCity').value.trim();
-    const newDistrict = document.getElementById('newDistrict').value.trim();
-    const newState = document.getElementById('newState').value.trim();
-    const newPincode = document.getElementById('newPincode').value.trim();    
-
-    // Validation
-    clearErrors();
-
-    if (!newHouse || !newPlace || !newCity || !newDistrict || !newState || !newPincode) {
-        showError('houseError', 'All fields are required.');
-       
-        return;
-    }
-
-    if (hasSpecialCharacters(newHouse) || hasSpecialCharacters(newPlace) || hasSpecialCharacters(newCity) ||
-        hasSpecialCharacters(newDistrict) || hasSpecialCharacters(newState)) {
-        showError('houseError', 'Address fields should not contain special characters.');
-      //  Swal.fire({
-        //    icon: 'error',
-        //    title: 'Validation Error',
-       //     text: 'Address fields should not contain special characters.',
-      //  });
-        return;
-    }
-
-    if (!isValidPincode(newPincode)) {
-        showError('pincodeError', 'Pincode must be a 6-digit number.');
-       
-        return;
-    }
-
-    try {
-        // Sending the data to the server
-        const response = await fetch('/addAddress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: document.getElementById('_id').value, // Assuming you have a hidden input for userId
-                house: newHouse,
-                place: newPlace,
-                city: newCity,
-                district: newDistrict,
-                state: newState,
-                pincode: newPincode
-            })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Success: Update the address list with the result from the server
-            addresses.push(result.address);
-            renderAddresses();
-             clearAddAddressForm();
-            cancelAddAddress();
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Address added successfully.',
-            });
-        } else {
-            // Handle errors (from the server)
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: `Error: ${result.message}`,
-            });
+            // Clear any previous error messages
+            document.querySelectorAll('.error').forEach(element => element.textContent = '');
         }
-    } catch (error) {
-        // Handle network or server errors
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while saving the address.',
-        });
-    }
-}
 
-//clear form after submit
-function clearAddAddressForm() {
-    const formFields = document.querySelectorAll('.newAddess input');
-    formFields.forEach(field => {
-        field.value = '';
-    });
-}
+        function showError(elementId, message) {
+            // Show error message
+            document.getElementById(elementId).textContent = message;
+        }
 
+        function hasSpecialCharacters(value) {
+            // Check for special characters
+            const regex = /[!@#$%^&*(),.?":{}|<>]/g;
+            return regex.test(value);
+        }
 
-async function saveEditedAddress(id) {
-    const house = document.getElementById(`editHouse-${id}`).value.trim();
-    const place = document.getElementById(`editPlace-${id}`).value.trim();
-    const city = document.getElementById(`editCity-${id}`).value.trim();
-    const district = document.getElementById(`editDistrict-${id}`).value.trim();
-    const state = document.getElementById(`editState-${id}`).value.trim();
-    const pincode = document.getElementById(`editPincode-${id}`).value.trim();
+        function isValidPincode(pincode) {
+            // Validate pincode (6 digits)
+            const regex = /^[0-9]{6}$/;
+            return regex.test(pincode);
+        }
 
-    // Validation
-    clearErrors();
+        async function saveNewAddress() {
+            const newHouse = document.getElementById('newHouse').value.trim();
+            const newPlace = document.getElementById('newPlace').value.trim();
+            const newCity = document.getElementById('newCity').value.trim();
+            const newDistrict = document.getElementById('newDistrict').value.trim();
+            const newState = document.getElementById('newState').value.trim();
+            const newPincode = document.getElementById('newPincode').value.trim();
 
-    if (!house || !place || !city || !district || !state || !pincode) {
-        showError(`editHouseError-${id}`, 'All fields are required.');
-      
-        return;
-    }
+            // Validation
+            clearErrors();
 
-    if (hasSpecialCharacters(house) || hasSpecialCharacters(place) || hasSpecialCharacters(city) ||
-        hasSpecialCharacters(district) || hasSpecialCharacters(state)) {
-        showError(`editHouseError-${id}`, 'Address fields should not contain special characters.');
-       
-        return;
-    }
+            if (!newHouse || !newPlace || !newCity || !newDistrict || !newState || !newPincode) {
+                showError('houseError', 'All fields are required.');
 
-    if (!isValidPincode(pincode)) {
-        showError(`editPincodeError-${id}`, 'Pincode must be a 6-digit number.');
-      
-        return;
-    }
-
-    try {
-        // Sending the data to the server
-        const response = await fetch('/updateAddress', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id,
-                house,
-                place,
-                city,
-                district,
-                state,
-                pincode
-            })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Success: Update the address list with the result from the server
-            const index = addresses.findIndex(address => address._id === id);
-            if (index !== -1) {
-                addresses[index] = result.address; // Update the address in the array
-                renderAddresses(); // Re-render the addresses
-                cancelEditAddress(id); // Hide the edit form
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Address updated successfully.',
-                });
+                return;
             }
-        } else {
-            // Handle errors (from the server)
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: `Error: ${result.message}`,
-            });
-        }
-    } catch (error) {
-        // Handle network or server errors
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while updating the address.',
-        });
-    }
-}
 
-//delete
-        async function deleteAddress(id) {
-    // Show confirmation dialog
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'You will not be able to recover this address!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    });
+            if (hasSpecialCharacters(newHouse) || hasSpecialCharacters(newPlace) || hasSpecialCharacters(newCity) ||
+                hasSpecialCharacters(newDistrict) || hasSpecialCharacters(newState)) {
+                showError('houseError', 'Address fields should not contain special characters.');
+                //  Swal.fire({
+                //    icon: 'error',
+                //    title: 'Validation Error',
+                //     text: 'Address fields should not contain special characters.',
+                //  });
+                return;
+            }
 
-    if (result.isConfirmed) {
-        try {
-            // Sending the delete request to the server
-            const response = await fetch('/deleteAddress', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id })
-            });
+            if (!isValidPincode(newPincode)) {
+                showError('pincodeError', 'Pincode must be a 6-digit number.');
 
-            const result = await response.json();
+                return;
+            }
 
-            if (response.ok) {
-                // Success: Remove the address from the list and re-render
-                addresses = addresses.filter(address => address._id !== id); // Remove address from the array
-                renderAddresses(); // Re-render the addresses
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Deleted!',
-                    text: 'Address has been deleted.',
+            try {
+                // Sending the data to the server
+                const response = await fetch('/addAddress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: document.getElementById('_id').value, // Assuming you have a hidden input for userId
+                        house: newHouse,
+                        place: newPlace,
+                        city: newCity,
+                        district: newDistrict,
+                        state: newState,
+                        pincode: newPincode
+                    })
                 });
-            } else {
-                // Handle errors (from the server)
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success: Update the address list with the result from the server
+                    addresses.push(result.address);
+                    renderAddresses();
+                    clearAddAddressForm();
+                    cancelAddAddress();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Address added successfully.',
+                    });
+                } else {
+                    // Handle errors (from the server)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Error: ${result.message}`,
+                    });
+                }
+            } catch (error) {
+                // Handle network or server errors
+                console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: `Error: ${result.message}`,
+                    text: 'An error occurred while saving the address.',
                 });
             }
-        } catch (error) {
-            // Handle network or server errors
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred while deleting the address.',
+        }
+
+        //clear form after submit
+        function clearAddAddressForm() {
+            const formFields = document.querySelectorAll('.newAddess input');
+            formFields.forEach(field => {
+                field.value = '';
             });
         }
-    }
-}
+
+
+        async function saveEditedAddress(id) {
+            const house = document.getElementById(`editHouse-${id}`).value.trim();
+            const place = document.getElementById(`editPlace-${id}`).value.trim();
+            const city = document.getElementById(`editCity-${id}`).value.trim();
+            const district = document.getElementById(`editDistrict-${id}`).value.trim();
+            const state = document.getElementById(`editState-${id}`).value.trim();
+            const pincode = document.getElementById(`editPincode-${id}`).value.trim();
+
+            // Validation
+            clearErrors();
+
+            if (!house || !place || !city || !district || !state || !pincode) {
+                showError(`editHouseError-${id}`, 'All fields are required.');
+
+                return;
+            }
+
+            if (hasSpecialCharacters(house) || hasSpecialCharacters(place) || hasSpecialCharacters(city) ||
+                hasSpecialCharacters(district) || hasSpecialCharacters(state)) {
+                showError(`editHouseError-${id}`, 'Address fields should not contain special characters.');
+
+                return;
+            }
+
+            if (!isValidPincode(pincode)) {
+                showError(`editPincodeError-${id}`, 'Pincode must be a 6-digit number.');
+
+                return;
+            }
+
+            try {
+                // Sending the data to the server
+                const response = await fetch('/updateAddress', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id,
+                        house,
+                        place,
+                        city,
+                        district,
+                        state,
+                        pincode
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success: Update the address list with the result from the server
+                    const index = addresses.findIndex(address => address._id === id);
+                    if (index !== -1) {
+                        addresses[index] = result.address; // Update the address in the array
+                        renderAddresses(); // Re-render the addresses
+                        cancelEditAddress(id); // Hide the edit form
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Address updated successfully.',
+                        });
+                    }
+                } else {
+                    // Handle errors (from the server)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: `Error: ${result.message}`,
+                    });
+                }
+            } catch (error) {
+                // Handle network or server errors
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the address.',
+                });
+            }
+        }
+
+        //delete
+        async function deleteAddress(id) {
+            // Show confirmation dialog
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You will not be able to recover this address!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // Sending the delete request to the server
+                    const response = await fetch('/deleteAddress', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Success: Remove the address from the list and re-render
+                        addresses = addresses.filter(address => address._id !== id); // Remove address from the array
+                        renderAddresses(); // Re-render the addresses
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Address has been deleted.',
+                        });
+                    } else {
+                        // Handle errors (from the server)
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: `Error: ${result.message}`,
+                        });
+                    }
+                } catch (error) {
+                    // Handle network or server errors
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while deleting the address.',
+                    });
+                }
+            }
+        }
 
 
         // Initial render of the addresses
         renderAddresses();
     </script>
 </body>
+
 </html>

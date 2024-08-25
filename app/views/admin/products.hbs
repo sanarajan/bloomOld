@@ -41,16 +41,15 @@
                 {{#if products}}
                 {{#each products}}
                 <tr>
-                   <td><img src="/{{this.thumbnailPaths.[0]}}" style="height:30px;width:30px"></td>
+                  <td><img src="/{{this.thumbnailPaths.[0]}}" style="height:30px;width:30px"></td>
                   <td>{{this.productName}}</td>
                   <td>{{this.subCategoryId.categoryId.categoryName}}</td>
                   <td>{{this.subCategoryId.subCategoryName}}</td>
                   <td>{{this.price}}</td>
                   <td>{{this.quantity}}</td>
                   <td id="status{{this._id}}">
-                    <button id="toggleButton{{this._id}}" 
-                            onclick="toggleProductStatus('{{this._id}}')" 
-                            class="btn {{ternary (eq this.isActive true) 'btn-success' 'btn-danger'}}">
+                    <button id="toggleButton{{this._id}}" onclick="toggleProductStatus('{{this._id}}')"
+                      class="btn {{ternary (eq this.isActive true) 'btn-success' 'btn-danger'}}">
                       {{ternary (eq this.isActive true) "Active" "Inactive"}}
                     </button>
                   </td>
@@ -75,7 +74,7 @@
   function toggleProductStatus(productId) {
     const toggleButton = document.querySelector(`#toggleButton${productId}`);
     const currentStatus = toggleButton.textContent.trim() === 'Active' ? 'Inactive' : 'Active';
-   
+
     swal({
       title: "Are you sure?",
       text: `Do you want to set this product to ${currentStatus}?`,
@@ -101,28 +100,28 @@
         fetch(`/admin/toggleProductStatus/${productId}`, {
           method: 'PATCH',
         })
-        .then(response => response.json())
-        .then(result => {
-          if (result.success) {
-            if (result.isActive) {
-              
-               toggleButton.classList.remove('btn-danger');
-              toggleButton.classList.add('btn-success');
+          .then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              if (result.isActive) {
 
-              toggleButton.textContent = 'Active';
+                toggleButton.classList.remove('btn-danger');
+                toggleButton.classList.add('btn-success');
+
+                toggleButton.textContent = 'Active';
+              } else {
+                toggleButton.classList.remove('btn-success');
+                toggleButton.classList.add('btn-danger');
+                toggleButton.textContent = 'Inactive';
+              }
             } else {
-              toggleButton.classList.remove('btn-success');
-              toggleButton.classList.add('btn-danger');
-              toggleButton.textContent = 'Inactive';
+              swal('Error', 'Error toggling product status: ' + result.message, 'error');
             }
-          } else {
-            swal('Error', 'Error toggling product status: ' + result.message, 'error');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          swal('Error', 'An error occurred while toggling the product status.', 'error');
-        });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            swal('Error', 'An error occurred while toggling the product status.', 'error');
+          });
       }
     });
   }

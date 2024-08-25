@@ -48,8 +48,8 @@
                   {{else}}
                   <td>
 
-                    <span title="Inactive" id="unblock" onclick="confirmBlock(this, '{{this._id}}')" class="badge bg-success"
-                      style="cursor:pointer">Unblock</span>
+                    <span title="Inactive" id="unblock" onclick="confirmBlock(this, '{{this._id}}')"
+                      class="badge bg-success" style="cursor:pointer">Unblock</span>
 
                   </td>
                   {{/if}}
@@ -71,38 +71,38 @@
 
 </main><!-- End #main -->
 <script>
-    function confirmBlock(element, userId) {
-      var task = element.id;
-      
-      swal({
-        title: "Are you sure?",
-        text: `Are you sure you want to ${task} this user?`,
-        icon: "warning",
-        buttons: {
-          cancel: {
-            text: "Cancel",
-            value: null,
-            visible: true,
-            className: "",
-            closeModal: true,
-          },
-          confirm: {
-            text: "Yes, do it!",
-            value: true,
-            visible: true,
-            className: "",
-            closeModal: true
-          }
+  function confirmBlock(element, userId) {
+    var task = element.id;
+
+    swal({
+      title: "Are you sure?",
+      text: `Are you sure you want to ${task} this user?`,
+      icon: "warning",
+      buttons: {
+        cancel: {
+          text: "Cancel",
+          value: null,
+          visible: true,
+          className: "",
+          closeModal: true,
+        },
+        confirm: {
+          text: "Yes, do it!",
+          value: true,
+          visible: true,
+          className: "",
+          closeModal: true
         }
-      }).then((willDoIt) => {
-        if (willDoIt) {
-          fetch('/admin/blockUser', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: userId, task: task })
-          })
+      }
+    }).then((willDoIt) => {
+      if (willDoIt) {
+        fetch('/admin/blockUser', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: userId, task: task })
+        })
           .then(response => {
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
@@ -132,8 +132,8 @@
             console.error('Error:', error);
             swal('Error', 'An error occurred while updating the user status.', 'error');
           });
-        }
-      });
-    }
+      }
+    });
+  }
 
 </script>

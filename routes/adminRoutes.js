@@ -7,12 +7,14 @@ const categoryController = require('../app/controllers/categoryController');
 const upload = require('../config/multerConfig');
 const productController = require('../app/controllers/productController');
 const orderController =require('../app/controllers/orderController');
+const couponController = require('../app/controllers/couponController');
 const isAdminAuthenticated = require('../middleware/auth');
 
 router.get('/', adminController.index);
 router.post('/adminlogin', adminController.adminlogin);
 router.get('/adminHome',isAdminAuthenticated, adminController.adminHome);
 router.get('/adminLogout',isAdminAuthenticated, adminController.adminLogout);
+
 
 //users
 router.get('/users',isAdminAuthenticated, userController.users);
@@ -49,6 +51,19 @@ router.get('/orders',isAdminAuthenticated, orderController.orders);
 router.get('/orderDetails/:orderId',isAdminAuthenticated, orderController.orderDetails);
 // In your routes file
 router.post('/updateOrderStatus', isAdminAuthenticated, orderController.updateOrderStatus);
+router.post('/sendmail', isAdminAuthenticated, adminController.sendmail);
+
+//coupons
+router.get('/coupons',isAdminAuthenticated, couponController.coupons);
+router.get('/addCoupon',isAdminAuthenticated, couponController.addCoupon);
+router.post('/saveCoupon', isAdminAuthenticated,upload.single('couponImage'), couponController.saveCoupon);
+// upload.array('offerImages', 5)
+router.patch('/changeCouponStatus', isAdminAuthenticated,couponController.changeCouponStatus)
+router.get('/editCoupon/:couponId',isAdminAuthenticated, couponController.editCoupon);
+
+router.post('/updateCoupon', isAdminAuthenticated,upload.single('couponImage'), couponController.updateCoupon);
+
+
 
 
  

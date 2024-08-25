@@ -190,12 +190,12 @@
   }
 
     function productValidation(event) {
-      const productName = document.getElementById('productName').value;
+      const productName = document.getElementById('productName').value.trim();
       const categoryId = document.getElementById('categoryId').value;
       const subCategoryId = document.getElementById('subCategoryId').value;
-      const description = document.getElementById('description').value;
-      const price = document.getElementById('price').value;
-      const quantity = document.getElementById('quantity').value;
+      const description = document.getElementById('description').value.trim();
+      const price = document.getElementById('price').value.trim();
+      const quantity = document.getElementById('quantity').value.trim();
       const image1 = document.getElementById('image1').files[0];
       const image2 = document.getElementById('image2').files[0];
       const image3 = document.getElementById('image3').files[0];

@@ -10,10 +10,10 @@
       </ol>
     </nav>
     {{#if success}}
-      <div class="alert alert-success"> {{success}}</div>
+    <div class="alert alert-success"> {{success}}</div>
     {{/if}}
     {{#if catupdate}}
-      <div class="alert alert-success"> {{catupdate}}</div>
+    <div class="alert alert-success"> {{catupdate}}</div>
     {{/if}}
   </div><!-- End Page Title -->
 
@@ -23,7 +23,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Categories</h5>
-           
+
             <!-- Table with stripped rows -->
             <table class="table datatable">
               <thead>
@@ -41,7 +41,8 @@
                   <td>{{this.categoryName}}</td>
                   <td>{{this.description}}</td>
                   <td id="status{{_id}}">
-                    <button class="btn {{ternary (eq this.isActive true) 'btn-success' 'btn-danger'}}" onclick="toggleStatus('{{this._id}}')">
+                    <button class="btn {{ternary (eq this.isActive true) 'btn-success' 'btn-danger'}}"
+                      onclick="toggleStatus('{{this._id}}')">
                       {{ternary (eq this.isActive true) 'Active' 'Inactive'}}
                     </button>
                   </td>
@@ -65,57 +66,57 @@
 </main><!-- End #main -->
 
 <script>
- function toggleStatus(categoryId) {
-   const statusButton = document.querySelector(`#status${categoryId} button`);
-      let  md = false;
-      let txt ='Active'
-  if( statusButton.innerText=== 'Active'){
-     md = true;
-     txt ='Inactive'
-  }   
-
-  swal({
-    title: "Are you sure?",
-    text: `Do you want to ${txt} the category?`,
-    icon: "warning",
-    buttons: true,
-    dangerMode: md,
-  })
-  .then((willChange) => {
-    if (willChange) {
-      fetch('/admin/cateDelete', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: categoryId })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-         
-          if (data.newStatus === 'Active') {
-              statusButton.classList.remove('btn-danger');
-            statusButton.classList.add('btn-success');
-            statusButton.textContent = 'Active';
-          } else {
-          
-            statusButton.classList.remove('btn-success');
-            statusButton.classList.add('btn-danger');
-            statusButton.textContent = 'Inactive';
-          }
-          swal("Success!", "The category status has been updated.", "success");
-        } else {
-          console.error('Error updating category status:', data.message);
-          swal("Error", 'Error updating category status: ' + data.message, "error");
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        swal("Error", "An error occurred while updating the category status.", "error");
-      });
+  function toggleStatus(categoryId) {
+    const statusButton = document.querySelector(`#status${categoryId} button`);
+    let md = false;
+    let txt = 'Active'
+    if (statusButton.innerText === 'Active') {
+      md = true;
+      txt = 'Inactive'
     }
-  });
-}
+
+    swal({
+      title: "Are you sure?",
+      text: `Do you want to ${txt} the category?`,
+      icon: "warning",
+      buttons: true,
+      dangerMode: md,
+    })
+      .then((willChange) => {
+        if (willChange) {
+          fetch('/admin/cateDelete', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: categoryId })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+
+                if (data.newStatus === 'Active') {
+                  statusButton.classList.remove('btn-danger');
+                  statusButton.classList.add('btn-success');
+                  statusButton.textContent = 'Active';
+                } else {
+
+                  statusButton.classList.remove('btn-success');
+                  statusButton.classList.add('btn-danger');
+                  statusButton.textContent = 'Inactive';
+                }
+                swal("Success!", "The category status has been updated.", "success");
+              } else {
+                console.error('Error updating category status:', data.message);
+                swal("Error", 'Error updating category status: ' + data.message, "error");
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              swal("Error", "An error occurred while updating the category status.", "error");
+            });
+        }
+      });
+  }
 
 </script>

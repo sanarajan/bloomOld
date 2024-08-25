@@ -4,7 +4,7 @@ const router = express.Router();
 const userController = require('../app/controllers/userController');
 const productController = require('../app/controllers/productController');
 const cartController = require('../app/controllers/cartController');
-
+const orderController = require('../app/controllers/orderController');
 const isUserAuthenticated = require('../middleware/authUser');
 //for google auth /single signon
 const isLoggedIn = require('../middleware/google');
@@ -20,9 +20,14 @@ router.post('/register', userController.register);
 router.get('/logout',isUserAuthenticated, userController.logout);
 
 
+
 router.get('/home',isUserAuthenticated, userController.home);
 router.post('/login', userController.login);
 router.get('/optVerification', userController.optVerification);
+router.post('/sendOTPVerificationEmail', userController.sendOTPVerificationEmail);
+
+router.post('/verifyOtp', userController.verifyOtp);
+
 
 //product list
 router.get('/shop',isUserAuthenticated, productController.shop);
@@ -50,6 +55,7 @@ router.get( '/auth/google/success',isLoggedIn,
   let name = req.user.displayName
   req.session.userType = req.user.userType;
   req.session.username = req.user.username;
+  req.session.userId = req.user._id;
   req.session.useremail = req.user.email;
   req.session.userPasswordWrong = false;
   console.log(req.user)
@@ -87,7 +93,16 @@ router.post('/payment',isUserAuthenticated,cartController.payment);
 router.post('/placeOrder',isUserAuthenticated,cartController.placeOrder);
 router.get('/myOrders',isUserAuthenticated,cartController.myOrders);
 router.get('/fetchOrders',isUserAuthenticated,cartController.fetchOrders);
-router.post('/cancelOrder', cartController.cancelOrder);
+router.post('/cancelOrder',isUserAuthenticated, cartController.cancelOrder);
+router.post('/returnOrder', isUserAuthenticated,orderController.returnOrder);
+
+
+//wishlist
+router.post('/addToWishlist',isUserAuthenticated, cartController.addToWishlist);
+router.get('/whishlist',isUserAuthenticated,cartController.whishlist);
+router.delete('/deletWishlist',isUserAuthenticated,cartController.deletWishlist);
+
+router.get('/wallet',isUserAuthenticated,cartController.wallet);
 
 
 
@@ -95,7 +110,8 @@ router.post('/cancelOrder', cartController.cancelOrder);
 
 
 
-router.get('/whishlist',isUserAuthenticated,userController.whishlist);
+
+
 
 
 
