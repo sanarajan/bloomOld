@@ -81,9 +81,9 @@
 <script>
  document.addEventListener('DOMContentLoaded', function () {
   function subCategoryValidation(event) {
-    const subCategoryName = document.getElementById('subCategoryName').value;
+    const subCategoryName = document.getElementById('subCategoryName').value.trim();
     const categoryId = document.getElementById('categoryId').value;
-    const description = document.getElementById('description').value;
+    const description = document.getElementById('description').value.trim();
     
     const subCategoryName_error = document.getElementById('subCategoryName_error');
     const categoryId_error = document.getElementById('categoryId_error');
@@ -165,8 +165,8 @@
     .then(response => response.json())
     .then(result => {
       if (result.success) {console.log("ok")
-        alert('Category updated successfully');
-        window.location.href = '/admin/categories';
+       
+        window.location.href = '/admin/subCategories';
       } else {
         alert('Error updating category: ' + result.message);
       }

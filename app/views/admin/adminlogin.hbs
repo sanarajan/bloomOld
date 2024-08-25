@@ -15,7 +15,9 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../templ/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -58,13 +60,13 @@
                     <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
                     <p class="text-center small"></p>
                     <span id="errorMsg" style="color:red">
-                  {{#if pwIncorrect}}
-                  {{pwIncorrect}}
-                  {{/if}}
-                  {{#if msg}}
-                  {{msg}}
-                  {{/if}}
-                </span>
+                      {{#if pwIncorrect}}
+                      {{pwIncorrect}}
+                      {{/if}}
+                      {{#if msg}}
+                      {{msg}}
+                      {{/if}}
+                    </span>
                   </div>
 
                   <form class="g-3" id="adminloginform" action="/admin/adminlogin" method="post">
@@ -110,9 +112,9 @@
   <script src="../templ/js/main.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       function adminValidateForm(event) {
-        
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('errorMsg');

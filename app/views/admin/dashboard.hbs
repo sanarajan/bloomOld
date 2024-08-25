@@ -51,6 +51,13 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.html">Home</a></li>
           <li class="breadcrumb-item active">Dashboard</li>
+          <li>
+          <form id="sendMailForm" action="/admin/sendmail" method="POST">
+    <!-- Add any hidden fields or inputs needed for the request -->
+    <a href="#" id="sendMailLink">Send Email</a>
+</form>
+          </li>
+
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -690,5 +697,42 @@
     </section>
 
   </main><!-- End #main -->
+
+  <script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const sendMailLink = document.getElementById('sendMailLink');
+    const sendMailForm = document.getElementById('sendMailForm');
+
+    sendMailLink.addEventListener('click', async (event) => {
+        event.preventDefault(); // Prevent the default link behavior
+
+        try {
+            const formData = new FormData(sendMailForm);
+
+            // Convert FormData to a plain object or URLSearchParams
+            //const data = new URLSearchParams(formData);
+
+            const response = await fetch('/admin/sendmail', {
+                method: 'POST',
+                body: {data:"some"},
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log('Email sent successfully:', result);
+                // Optionally, handle successful response (e.g., show a message)
+            } else {
+                console.error('Error sending email:', result);
+                // Optionally, handle error response (e.g., show an error message)
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Optionally, handle network or other errors
+        }
+    });
+});
+
+  </script>
 
   

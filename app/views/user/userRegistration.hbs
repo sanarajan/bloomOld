@@ -1,57 +1,80 @@
 <!-- views/register.hbs -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create an Account</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
     <style>
         body {
-            background-color: #f0f8f0; /* Light green background */
+            background-color: #f0f8f0;
+            /* Light green background */
             font-family: 'Arial', sans-serif;
         }
+
         .card {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+
         .card-body {
             background-color: #ffffff;
             padding: 2rem;
         }
+
         .card-title {
-            color: #2d6a4f; /* Dark green for title */
+            color: #2d6a4f;
+            /* Dark green for title */
             margin-bottom: 1.5rem;
         }
+
         .form-label {
-            color: #2d6a4f; /* Dark green for labels */
+            color: #2d6a4f;
+            /* Dark green for labels */
         }
+
         .btn-primary {
-            background-color: #2d6a4f; /* Dark green button */
+            background-color: #2d6a4f;
+            /* Dark green button */
             border: none;
         }
+
         .btn-primary:hover {
-            background-color: #1e4f35; /* Even darker green on hover */
+            background-color: #1e4f35;
+            /* Even darker green on hover */
         }
+
         .text-center p a {
-            color: #2d6a4f; /* Dark green for the link */
+            color: #2d6a4f;
+            /* Dark green for the link */
         }
+
         .text-center p a:hover {
             text-decoration: underline;
         }
+
         .form-control {
             border-radius: 5px;
-            border: 1px solid #c4e1c1; /* Light green border for inputs */
+            border: 1px solid #c4e1c1;
+            /* Light green border for inputs */
         }
+
         .form-control:focus {
-            border-color: #2d6a4f; /* Dark green border on focus */
+            border-color: #2d6a4f;
+            /* Dark green border on focus */
             box-shadow: none;
         }
+
         .form-control::placeholder {
-            color: #a1c4a3; /* Light green placeholder text */
+            color: #a1c4a3;
+            /* Light green placeholder text */
         }
+
         .error-message {
             color: red;
             font-size: 0.875rem;
@@ -59,6 +82,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="row justify-content-center mt-5">
@@ -67,7 +91,7 @@
                     <div class="card-body">
                         <h4 class="card-title text-center mb-4">Create an Account</h4>
                         {{#if errorMessage}}
-                            <div class="alert alert-danger">{{errorMessage}}</div>
+                        <div class="alert alert-danger">{{errorMessage}}</div>
                         {{/if}}
                         <form id="registrationForm" method="POST" action="/register">
                             <div class="mb-3">
@@ -92,7 +116,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    required>
                                 <div class="error-message" id="confirmPasswordError"></div>
                             </div>
                             <div class="mb-3">
@@ -112,8 +137,9 @@
     </div>
 
     <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
     <!-- Client-side validation script -->
     <script>
         document.getElementById('registrationForm').addEventListener('submit', function (event) {
@@ -203,4 +229,5 @@
         });
     </script>
 </body>
+
 </html>

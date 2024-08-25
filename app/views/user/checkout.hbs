@@ -448,7 +448,7 @@
             document.getElementById('deliverHereButton' + addressId).style.display = 'none';
             document.getElementById('addressSelected').value = addressId;
 
-            
+
             cancelEdit()
             cancelAddAddress()
             //  document.getElementById('address' + addressId).textContent
@@ -641,20 +641,20 @@
             }
         }
 
-        function renderAddresses(id="") {
-       
-            let chek =''
-            if(!id){
-              chek =addresses[addresses.length - 1]._id
-            }else{
-                chek =id
+        function renderAddresses(id = "") {
+
+            let chek = ''
+            if (!id) {
+                chek = addresses[addresses.length - 1]._id
+            } else {
+                chek = id
             }
-           
+
             const addressList = document.getElementById('addressList');
             addressList.innerHTML = ''; // Clear the existing content
 
-            addresses.forEach(address => { 
-             
+            addresses.forEach(address => {
+
                 // Create the address item container
                 const addressItem = document.createElement('div');
                 addressItem.className = 'address-item';
@@ -733,7 +733,7 @@
                 deliverButton.className = 'deliver-here-button';
                 deliverButton.id = `deliverHereButton${addressId}`;
                 deliverButton.innerText = 'Deliver Here';
-                deliverButton.style.marginLeft= 'auto';
+                deliverButton.style.marginLeft = 'auto';
                 deliverButton.onclick = function () {
                     selectAddress(addressId);
                     showChangeButton(addressId);

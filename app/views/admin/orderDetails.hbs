@@ -1,113 +1,119 @@
+<style>
+    .container-custom {
+        padding: 20px;
+        margin-left: 250px;
+    }
 
-    <style>
-        .container-custom {
-            padding: 20px;
-            margin-left: 250px;
-        }
-        .order-info {
-            margin-bottom: 20px;
-        }
-        .status-select {
-            width: 100%;
-        }
-         .sidebar {
-            width: 250px;
-         }
-    </style>
+    .order-info {
+        margin-bottom: 20px;
+    }
 
-    <div class="container-custom">
-        <h1>Order Details</h1>
+    .status-select {
+        width: 100%;
+    }
 
-        <!-- Order Information -->
-        {{#each updatedOrders}}
-            <input type="hidden" id="userId" name="userId" value="{{this.userId._id}}">
-            <input type="hidden" id="orderId" name="orderId" value="{{this._id}}">
+    .sidebar {
+        width: 250px;
+    }
+</style>
 
-            <div class="order-info">
-                <p><strong>User Name:</strong> {{this.userId.username}}</p>
-                <p><strong>Order Date:</strong> {{formatDate createdAt}}</p>
-                <p><strong>Address Ordered:</strong><br> {{this.address.house}},
-                 {{this.address.place}},{{this.address.city}}, <br>
-                  {{this.address.district}}, {{this.address.state}}, {{this.address.pincode}}</p>
-                <p><strong>Order ID:</strong> {{this.orderId}}</p>
-                <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
-            </div>
+<div class="container-custom">
+    <h1>Order Details</h1>
 
-            <!-- Order Items Table -->
-            <table class="table datatable">
-                <thead>
-                    <tr>
-                        <th width="15%">Image</th>
-                        <th width="25%">Product</th>
-                        <th width="10%">Price</th>
-                        <th width="10%">Quantity</th>
-                        <th width="10%" class="text-end">Total</th>
-                        <th width="15%">Status</th>
-                        <th width="15%">Change Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    {{#each orderedProducts}}
-                        <tr data-order-id="{{../this.orderId}}" data-user-id="{{../this.userId._id}}">
-                            <td><img src="/{{this.image}}" style="width:50px;height:50px" alt="Product Image"></td>
-                            <td>{{productName}}</td>
-                            <td>{{this.price}}</td>
-                            <td>{{quantity}}</td>
-                            <td class="text-end">{{itemTotalPrice}}</td>
-                            <td>
-                                <button  style="background-color: {{this.btnColr}};" class="btn btn-primary btn-sm update-status-btn" >
-                                    {{orderStatus}}
-                                </button>
-                            </td>
-                            <td>
-                                <select data-item-p="{{this.productId}}" class="form-control status-select" data-item-id="{{this._id}}">
-                                    <option value="">--Select--</option>
-                                    <option value="Shipped" {{#if (eq orderStatus "Shipped")}}selected{{/if}}>Shipped</option>
-                                    <option value="Delivered" {{#if (eq orderStatus "Delivered")}}selected{{/if}}>Delivered</option>
-                                    <option value="Cancelled" {{#if (eq orderStatus "Cancelled")}}selected{{/if}}>Cancelled</option>
-                                </select>
-                            </td>
-                        </tr>
-                    {{/each}}
-                </tbody>
-            </table>
-        {{/each}}
+    <!-- Order Information -->
+    {{#each updatedOrders}}
+    <input type="hidden" id="userId" name="userId" value="{{this.userId._id}}">
+    <input type="hidden" id="orderId" name="orderId" value="{{this._id}}">
+
+    <div class="order-info">
+        <p><strong>User Name:</strong> {{this.userId.username}}</p>
+        <p><strong>Order Date:</strong> {{formatDate createdAt}}</p>
+        <p><strong>Address Ordered:</strong><br> {{this.address.house}},
+            {{this.address.place}},{{this.address.city}}, <br>
+            {{this.address.district}}, {{this.address.state}}, {{this.address.pincode}}</p>
+        <p><strong>Order ID:</strong> {{this.orderId}}</p>
+        <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
     </div>
 
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.status-select').forEach(function(selectBox) {
-                selectBox.addEventListener('change', function() {
-                   // var itemId =  document.getElementById('productId').value;
-                    var status = this.value;
-                    var itemId =  this.getAttribute('data-item-p');
-                    // Fetch the necessary hidden fields
-                    var orderId = document.getElementById('orderId').value;
-                    var userId = document.getElementById('userId').value;
+    <!-- Order Items Table -->
+    <table class="table datatable">
+        <thead>
+            <tr>
+                <th width="15%">Image</th>
+                <th width="25%">Product</th>
+                <th width="10%">Price</th>
+                <th width="10%">Quantity</th>
+                <th width="10%" class="text-end">Total</th>
+                <th width="15%">Status</th>
+                <th width="15%">Change Status</th>
+            </tr>
+        </thead>
+        <tbody>
 
-                    fetch('/admin/updateOrderStatus', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            status: status,
-                            orderId: orderId,
-                            productId: itemId,
-                            userId: userId
-                        })
+            {{#each orderedProducts}}
+            <tr data-order-id="{{../this.orderId}}" data-user-id="{{../this.userId._id}}">
+                <td><img src="/{{this.image}}" style="width:50px;height:50px" alt="Product Image"></td>
+                <td>{{productName}}</td>
+                <td>{{this.price}}</td>
+                <td>{{quantity}}</td>
+                <td class="text-end">{{itemTotalPrice}}</td>
+                <td>
+                    <button style="background-color: {{this.btnColr}};"
+                        class="btn btn-primary btn-sm update-status-btn">
+                        {{orderStatus}}
+                    </button>
+                </td>
+                <td>
+                    <select data-item-p="{{this.productId}}" class="form-control status-select"
+                        data-item-id="{{this._id}}">
+                        <option value="">--Select--</option>
+                        <option value="Shipped" {{#if (eq orderStatus "Shipped" )}}selected{{/if}}>Shipped</option>
+                        <option value="Delivered" {{#if (eq orderStatus "Delivered" )}}selected{{/if}}>Delivered
+                        </option>
+                        <option value="Cancelled" {{#if (eq orderStatus "Cancelled" )}}selected{{/if}}>Cancelled
+                        </option>
+                    </select>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{/each}}
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.status-select').forEach(function (selectBox) {
+            selectBox.addEventListener('change', function () {
+                // var itemId =  document.getElementById('productId').value;
+                var status = this.value;
+                var itemId = this.getAttribute('data-item-p');
+                // Fetch the necessary hidden fields
+                var orderId = document.getElementById('orderId').value;
+                var userId = document.getElementById('userId').value;
+
+                fetch('/admin/updateOrderStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: status,
+                        orderId: orderId,
+                        productId: itemId,
+                        userId: userId
                     })
+                })
                     .then(response => response.json())
                     .then(data => {
                         alert('Order status updated successfully!');
-                        
+
                         // Find the associated button and update its text and color based on the new status
                         var button = this.closest('tr').querySelector('.update-status-btn');
                         button.textContent = status;
 
-                        switch(status) {
+                        switch (status) {
                             case 'Shipped':
                                 button.style.backgroundColor = 'orange';
                                 break;
@@ -125,11 +131,10 @@
                         console.error('Error updating order status:', error);
                         alert('Failed to update order status. Please try again.');
                     });
-                });
             });
         });
+    });
 
-        //sidebar
-      
-    </script>
+    //sidebar
 
+</script>

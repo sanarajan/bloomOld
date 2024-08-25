@@ -5,6 +5,11 @@ const Cart = require("../models/cartModel");
 const userModel = require("../models/userModel");
 const Address = require("../models/addressModel");
 const Order = require("../models/orderModel");
+const Wishlist = require("../models/wishlistModel");
+const Coupon = require("../models/couponModel");
+const Wallet = require("../models/walletModel");
+
+
 
 const mongoose = require("mongoose");
 
@@ -89,12 +94,10 @@ exports.updateCartQuantity = async (req, res) => {
 
   // Validate the productId and quantity
   if (!productId || !quantity) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Product ID and quantity are required",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Product ID and quantity are required",
+    });
   }
 
   if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -126,22 +129,18 @@ exports.updateCartQuantity = async (req, res) => {
     console.log(quantity + "> " + product.quantity + " first");
     if (quantity > product.quantity) {
       console.log("quentity less");
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `Only ${product.quantity} items available`,
-        });
+      return res.status(400).json({
+        success: false,
+        message: `Only ${product.quantity} items available`,
+      });
     }
     // Check if quantity exceeds maximum limit
     if (quantity > MAX_QUANTITY) {
       console.log(quantity + "> " + MAX_QUANTITY);
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `Maximum quantity of ${MAX_QUANTITY} reached for this product.`,
-        });
+      return res.status(400).json({
+        success: false,
+        message: `Maximum quantity of ${MAX_QUANTITY} reached for this product.`,
+      });
     }
 
     // Find the item in the cart and update its quantity
@@ -404,6 +403,51 @@ exports.checkout = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+//uses inside payment function
+async function getCouponsForUserCart(userId) {
+  try {
+    const cart = await Cart.findOne({ user: userId, isActive: true })
+      .populate({
+        path: 'products.product',
+        populate: {
+          path: 'categoryId',
+          model: 'Category'
+        }
+      })
+      .exec();
+
+    if (!cart) {
+      throw new Error('No active cart found for this user.');
+    }
+
+    const productCategories = cart.products.map(item => item.product.categoryId._id);
+    const uniqueCategories = [...new Set(productCategories)];
+
+    const matchingCoupons = await Coupon.find({
+      category: { $in: uniqueCategories },
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() },
+      status: true
+    });
+
+    const formattedCoupons = matchingCoupons.map(coupon => {
+      return {
+        couponName: coupon.couponName,
+        _id:coupon._id,
+        discountType: coupon.discountType,
+        discountValueHide: coupon.discountType === 'Percentage' ? `${coupon.discountPercentage}` : `${coupon.discountValue}`,
+        discountValue: coupon.discountType === 'Percentage' ? `${coupon.discountPercentage}%` : `₹${coupon.discountValue}`
+      };
+    });
+
+    return formattedCoupons;
+
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
 exports.payment = async (req, res) => {
   try {
     const {
@@ -437,6 +481,8 @@ exports.payment = async (req, res) => {
       cartId: item._id,
       price: item.price,
     }));
+    const coupons = await getCouponsForUserCart(userId);
+
     res.render("user/payment", {
       orderDetails: {
         address,
@@ -451,6 +497,7 @@ exports.payment = async (req, res) => {
         userId,
         cartId,
       },
+      coupons
     });
   } catch (error) {
     console.error(error);
@@ -466,13 +513,14 @@ exports.placeOrder = async (req, res) => {
       cartId,
       totalPrice,
       discount,
+      selectedCouponId,
       deliveryCharges,
       packingCharge,
       totalSavings,
       totalAmount,
       productIds,
     } = req.body;
-
+console.log(discount+": discount")
     //orderid unique value create
     const now = new Date();
     const datePart = now.toISOString().replace(/[-T:.Z]/g, "");
@@ -509,8 +557,10 @@ exports.placeOrder = async (req, res) => {
       deliveryCharge: deliveryCharges,
       userId,
       packingCharge: packingCharge,
+      coupon:selectedCouponId,
+      discount:discount,
+      totalPrice:totalPrice,
       totalAmount: totalAmount,
-
       orderedProducts: cartItemsWithDetails,
     });
 
@@ -537,12 +587,10 @@ exports.placeOrder = async (req, res) => {
         // Decrease the product quantity
         product.quantity -= item.quantity;
 
-        // Save the updated product
         await product.save();
       }
       res.render("user/paymenySuccess", { orderId });
     }
-    // Respond with success message and the saved order
   } catch (error) {
     // Respond with error message
     res.status(500).json({ message: "Error placing order", error });
@@ -558,7 +606,6 @@ exports.myOrders = async (req, res) => {
 
 exports.fetchOrders = async (req, res) => {
   try {
-    // Fetch user ID from session
     const fetchUserId = await userModel.findOne({
       email: req.session.useremail,
     });
@@ -617,10 +664,7 @@ exports.fetchOrders = async (req, res) => {
         orderedProducts: updatedProducts,
       };
     });
-
-    // Log updated orders for debugging
     // console.log("Updated Orders: ", JSON.stringify(updatedOrders, null, 2));
-
     res.json(updatedOrders);
   } catch (error) {
     res.status(500).json({ message: "Error fetching orders", error });
@@ -632,12 +676,10 @@ exports.cancelOrder = async (req, res) => {
     const { orderId, productId, reason } = req.body;
     console.log(productId + " " + reason);
     if (!orderId || !productId || !reason) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Order ID, Product ID, and reason are required.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Order ID, Product ID, and reason are required.",
+      });
     }
 
     const order = await Order.findById(orderId);
@@ -657,25 +699,130 @@ exports.cancelOrder = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product not found in the order." });
     }
-  
+
     product.orderStatus = "Pending Cancellation";
     product.cancellation = { reason, cancelDate: new Date() };
-    product.cancelledBy =  req.session.userType ;
+    product.cancelledBy = req.session.userType;
 
     await order.save();
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Product cancellation requested successfully.",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Product cancellation requested successfully.",
+    });
   } catch (error) {
     console.error("Error cancelling product:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server error. Please try again later.",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
   }
 };
+
+//wishlist
+exports.addToWishlist = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const { productId } = req.body;
+    let wishlist = await Wishlist.findOne({ user: userId });
+
+    if (!wishlist) {
+      wishlist = new Wishlist({ user: userId, products: [productId] });
+      await wishlist.save();
+      return res.status(200).json({ message: "Product added to wishlist" });
+    }
+
+    const productIndex = wishlist.products.indexOf(productId);
+    if (productIndex > -1) {
+      wishlist.products.splice(productIndex, 1);
+      await wishlist.save();
+      return res.status(200).json({ message: "Product removed from wishlist" });
+    } else {
+      wishlist.products.push(productId);
+      await wishlist.save();
+      return res.status(200).json({ message: "Product added to wishlist" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error toggling wishlist", error });
+  }
+};
+exports.whishlist = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const wishlist = await Wishlist.findOne({ user: userId })
+      .populate({
+        path: "products",
+        populate: {
+          path: "categoryId",
+          model: "Category",
+        },
+      })
+      .lean();
+
+    if (!wishlist) {
+      return res.render("user/whishlist", {
+        showSidebar: true,
+        products: [],
+        message: "Your wishlist is empty.",
+      });
+    }
+    const productsWithCategory = wishlist.products.map((product) => ({
+      ...product,
+      categoryName: product.categoryId
+        ? product.categoryId.categoryName
+        : "Unknown",
+    }));
+
+    // Render the wishlist page with products
+    res.render("user/whishlist", {
+      showSidebar: true,
+      products: productsWithCategory,
+    });
+  } catch (error) {
+    console.error("Error in wishlist route:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+exports.deletWishlist = async (req, res) => {
+try {
+  const { productId } = req.body;
+
+  const userId = req.session.userId; // Assuming user ID is available via authentication middleware
+  // Find the user's wishlist and remove the product
+  const wishlist = await Wishlist.findOneAndUpdate(
+    { user: userId }, 
+    { $pull: { products: productId } },  // Directly pull the productId
+    { new: true }
+  );
+  
+  if (wishlist) {
+      res.status(200).json({ message: 'Product removed from wishlist' });
+  } else {
+      res.status(404).json({ message: 'Wishlist not found' });
+  }
+} catch (error) {
+  res.status(500).json({ message: 'Failed to remove product from wishlist' });
+}
+}
+
+//wallet
+exports.wallet = async (req, res) => {
+  try {
+   
+    const wallet = await Wallet.findOne({userId: req.session.userId})      
+      .lean();
+      if (wallet && wallet.History) {
+        wallet.History.sort((a, b) => new Date(b.date) - new Date(a.date));
+      }
+    res.render("user/wallet", {
+      wallet,
+      
+      showSidebar:  true
+    });
+  } catch (error) {
+    console.error("Error in index route:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
+

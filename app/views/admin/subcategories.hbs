@@ -65,13 +65,13 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
   function toggleSubCategoryStatus(subCategoryId) {
-      const statusButton = document.querySelector(`#status${subCategoryId} button`);
-      let  md = false;
-      let txt ='Active'
-  if( statusButton.innerText=== 'Active'){
-     md = true;
-     txt ='Inactive'
-  }   
+    const statusButton = document.querySelector(`#status${subCategoryId} button`);
+    let md = false;
+    let txt = 'Active'
+    if (statusButton.innerText === 'Active') {
+      md = true;
+      txt = 'Inactive'
+    }
 
     swal({
       title: "Are you sure?",

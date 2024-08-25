@@ -54,8 +54,8 @@
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     function categoryValidation(event) {
-      const categoryname = document.getElementById('categoryname').value;
-      const description = document.getElementById('description').value;
+      const categoryname = document.getElementById('categoryname').value.trim();
+      const description = document.getElementById('description').value.trim();
       const categoryname_error = document.getElementById('categoryname_error');
       const description_error = document.getElementById('description_error');
       if (!categoryname) {
