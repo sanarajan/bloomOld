@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
   subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubCategory', required: true },
   specifications: { type: Map, of: String },
   description: {type: String },
-  price: { type: mongoose.Decimal128, required: true } ,
+  price: { type: Number, required: true } ,
   quantity:{type:Number,required:true},
   images: [String],
   thumbnailPaths:[String],

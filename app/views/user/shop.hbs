@@ -17,7 +17,7 @@
   }
 
   .product-card .old-price {
-    text-decoration: line-through;
+    
     color: red;
   }
 
@@ -150,6 +150,26 @@
     color: red;
     /* Full red when active */
   }
+  .pagination-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.pagination-button:disabled {
+    background-color: #ccc;
+    cursor: default;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
 </style>
 
 
@@ -217,72 +237,126 @@
       </div>
       <div class="row" id="product-list">
         <!-- Product Card -->
-        {{#each products}}
-        <div class="col-md-3">
-          <a href="/productDetails/{{this._id}}" class="text-decoration-none" style="cursor:pointer">
-            <div class="card product-card">
-              <div class="image-container d-flex justify-content-center align-items-center">
-                <img src="{{this.thumbnailPaths.[0]}}" alt="Product Image" class="img-fluid">
-              </div>
-              <div class="card-body">
-                <h5 class="card-title">{{this.productName}}</h5>
-                {{#if this.status}}
-                <p id="status">{{this.status}}</p>
-                {{/if}}
-                <p class="old-price">400 Rs</p>
-                <p class="new-price">{{this.price}} Rs</p>
-                <div class="star-rating">
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star"></i>
-                  <i class="fas fa-star-half-alt"></i>
-                </div>
-              </div>
-              <div class="icons">
-
-                <i id="wishlist-icon{{product._id}}" style='margin-right:10px'
-                  class="fas fa-heart wishlist-icon {{#if inWishlist}}active{{/if}}"
-                  onclick="toggleWishlist('{{product._id}}')"></i>
-                {{!-- <a href="#" class="btn btn-warning"><i class="fa fa-shopping-cart"></i></a> --}}
-              </div>
-            </div>
-          </a>
-        </div>
-        {{/each}}
         <!-- Repeat Product Card as needed -->
       </div>
-      <nav aria-label="Page navigation">
-        <ul class="pagination">
-          {{#if (gt currentPage 1)}}
-          <li class="page-item">
-            <a class="page-link" href="?page={{subtract currentPage 1}}&limit={{limit}}" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-          {{/if}}
+      {{!-- pagination --}}
+       <div class="content-container text-end" style="width:95%">
+          <div class="pagination-container mt-3 mb-3" id="pagination-container">
+            <!-- Pagination buttons will be dynamically added here -->
+          </div>
+          <div id="data-container"></div>
+        </div>
 
-          {{#each (range 1 totalPages)}}
-          <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
-            <a class="page-link" href="?page={{this}}&limit={{limit}}">{{this}}</a>
-          </li>
-          {{/each}}
-
-          {{#if (lt currentPage totalPages)}}
-          <li class="page-item">
-            <a class="page-link" href="?page={{add currentPage 1}}&limit={{limit}}" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-          {{/if}}
-        </ul>
-      </nav>
+  
     </div>
   </div>
 </div>
 
 
 <script>
+  const paginationContainer = document.getElementById('pagination-container');
+    const dataContainer = document.getElementById('data-container');
+    let currentPage = 1;
+    let totalPages = 1;
+      
+    
+  document.addEventListener('DOMContentLoaded', function () {
+      const fetchProductsAndPagination = async (page = 1) => {
+        const limit = 4;
+        try {
+          const response = await fetch(`/shopFetch?page=${page}`);
+          const data = await response.json();
+
+          renderProducts(data.products);
+
+          renderPagination(data.currentPage, data.totalPages);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+        }
+      };
+
+       function renderProducts(products) {
+      const productListElement = document.getElementById('product-list');
+      productListElement.innerHTML = '';
+
+      products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'col-md-3 product-card';
+
+        productCard.innerHTML = `
+          <div class="card">
+            <div class="image-container d-flex justify-content-center align-items-center">
+              <img src="${product.thumbnailPaths[0]}" alt="Product Image" class="img-fluid">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">${product.productName}</h5>
+              ${product.status ? `<p id="status">${product.status}</p>` : ''}
+              <p class="old-price" style="${product.isOfferExist ?'text-decoration: line-through':''}">₹${product.price}</p>
+              <p class="new-price">
+        ${product.isOfferExist ?'₹'+product.offerPrice : '<p></p>'} <!-- If offerPrice exists, show it; otherwise, show regular price -->
+      </p>
+              <div class="star-rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+              </div>
+            </div>
+            <div class="icons">
+              <i id="wishlist-icon${product._id}" class="wishlist-icon fas fa-heart ${product.inWishlist ? 'active' : ''}" onclick="toggleWishlist('${product._id}', event)"></i>
+            </div>
+          </div>
+        `;
+
+        // Add click event listener to handle product navigation
+        productCard.addEventListener('click', (event) => {
+          if (event.target.closest('.card-body') || event.target.closest('.image-container')) {
+            window.location.href = `/productDetails/${product._id}`;
+          }
+        });
+
+        productListElement.appendChild(productCard);
+      });
+    }
+
+      const renderPagination = (currentPage, totalPages) => {
+  const paginationContainer = document.getElementById('pagination-container');
+  paginationContainer.innerHTML = '';
+
+  // Previous Button
+  const prevButton = document.createElement('button');
+  prevButton.className = 'pagination-button';
+  prevButton.textContent = 'Previous';
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener('click', () => fetchProductsAndPagination(currentPage - 1));
+  paginationContainer.appendChild(prevButton);
+
+  // Page Number Buttons
+  for (let i = 1; i <= totalPages; i++) {
+    const button = document.createElement('button');
+    button.className = 'pagination-button';
+    button.textContent = i;
+    if (i === currentPage) {
+      button.disabled = true;
+    }
+    button.addEventListener('click', () => fetchProductsAndPagination(i));
+    paginationContainer.appendChild(button);
+  }
+
+  // Next Button
+  const nextButton = document.createElement('button');
+  nextButton.className = 'pagination-button';
+  nextButton.textContent = 'Next';
+  nextButton.disabled = currentPage === totalPages;
+  nextButton.addEventListener('click', () => fetchProductsAndPagination(currentPage + 1));
+  paginationContainer.appendChild(nextButton);
+};
+
+
+      fetchProductsAndPagination(currentPage);
+    });
+
   function toggleSubcategories(categoryId) {
     const subcategories = document.getElementById(categoryId);
     if (subcategories) {
@@ -317,6 +391,7 @@
       category: selectedCategories.join(','),
       subCategory: selectedSubcategories.join(','),
       newArrivals,
+      page:currentPage
     });
 
     // Fetch data from the server
@@ -393,8 +468,8 @@
             <div class="card-body">
               <h5 class="card-title">${product.productName}</h5>
               ${product.status ? `<p id="status">${product.status}</p>` : ''}
-              <p class="old-price">400 Rs</p>
-              <p class="new-price">${product.price} Rs</p>
+              <p class="old-price">₹400 </p>
+              <p class="new-price">₹${product.price} </p>
               <div class="star-rating">
                 <i class="fas fa-star"></i>
                 <i class="fas fa-star"></i>
@@ -432,8 +507,9 @@
   fetchProducts({});
 
   //wishlist
-  async function toggleWishlist(productId) {
-    const wishlistIcon = document.getElementById('wishlist-icon'+productId);
+  async function toggleWishlist(productId,event) {
+     event.stopPropagation();
+    const wishlistIcon = document.getElementById('wishlist-icon' + productId);
     const isActive = wishlistIcon.classList.contains('active');
 
     try {

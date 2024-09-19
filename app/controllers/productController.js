@@ -3,8 +3,8 @@ const SubCategory = require("../models/subCategoryModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
 const userModel = require("../models/userModel");
-const Wishlist =  require("../models/wishlistModel");
-
+const Wishlist = require("../models/wishlistModel");
+const Offer = require('../models/offerModel');
 
 const path = require("path");
 
@@ -46,8 +46,8 @@ exports.products = async (req, res) => {
 exports.addProducts = async (req, res) => {
   try {
     let pageTitle = "Add Product";
-    var categories = await Category.find({}).lean();
-    var subcategories = await SubCategory.find({}).lean();
+    const categories = await Category.find({}).lean();
+    const subcategories = await SubCategory.find({}).lean();
     res.render("admin/addProducts", {
       categories,
       userName: req.session.adusername,
@@ -196,9 +196,9 @@ exports.selectSubcategories = async (req, res) => {
 exports.editProduct = async (req, res) => {
   try {
     let pageTitle = "Edit Product";
-    var categories = await Category.find({}).lean();
-    var subcategories = await SubCategory.find({}).lean();
-    var product = await Product.findById(req.params.id)
+    const categories = await Category.find({}).lean();
+    const subcategories = await SubCategory.find({}).lean();
+    const product = await Product.findById(req.params.id)
       .populate({
         path: "subCategoryId",
         populate: {
@@ -326,7 +326,7 @@ exports.updateProduct = async (req, res) => {
 
     // Save the updated product
     try {
-      var result = await product.save();
+      let result = await product.save();
     } catch (error) {
       console.error("error while saving", error);
       res.status(500).send("Internal server error");
@@ -373,18 +373,6 @@ exports.toggleProductStatus = async (req, res) => {
 //user side
 exports.shop = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 4;
-    const skip = (page - 1) * limit;
-
-    // Fetch products
-    const products = await Product.find({ isActive: true })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const totalProducts = await Product.countDocuments({ isActive: true });
-
     // Fetch categories
     const categories = await Category.find({ isActive: true }).lean();
 
@@ -403,20 +391,99 @@ exports.shop = async (req, res) => {
       category.subcategories = subCategoryMap[category._id.toString()] || [];
     });
 
+    // Fetch offers applicable to products and categories
+    const offers = await Offer.find({
+      status: true,
+      $or: [
+        { products: { $exists: true, $ne: null } },
+        { categories: { $exists: true, $ne: null } }
+      ]
+    }).lean();
+
+    // Create maps for offers by product ID and category ID
+    const offerByProduct = {};
+    const offerByCategory = {};
+
+    offers.forEach((offer) => {
+      if (offer.offerFor === 'product' && offer.products) {
+        offerByProduct[offer.products.toString()] = offer;
+      } else if (offer.offerFor === 'category' && offer.categories) {
+        offerByCategory[offer.categories.toString()] = offer;
+      }
+    });
+
+    // Fetch products for the shop page
+    const products = await Product.find({ isActive: true }).lean();
+
+    // Determine the highest offer and calculate the new price for each product
+    products.forEach((product) => {
+      const productOffer = offerByProduct[product._id.toString()] || null;
+      const categoryOffer = offerByCategory[product.categoryId.toString()] || null;
+
+      let highestOffer = null;
+      if (productOffer && categoryOffer) {
+        highestOffer = productOffer.offerPercentage > categoryOffer.offerPercentage
+          ? productOffer
+          : categoryOffer;
+      } else {
+        highestOffer = productOffer || categoryOffer || null;
+      }
+
+      // Calculate the new price if there's an offer
+      if (highestOffer) {
+        if (highestOffer.offerType === 'percentage' && highestOffer.offerPercentage) {
+          product.newPrice = product.price * (1 - highestOffer.offerPercentage / 100);
+        } else if (highestOffer.offerType === 'amount' && highestOffer.offerAmount) {
+          product.newPrice = product.price - highestOffer.offerAmount;
+        }
+        product.offer = highestOffer;
+      } else {
+        product.newPrice = product.price;
+        product.offer = null;
+      }
+    });
+
+    // Render the shop page with categories, subcategories, products, and offers
+    res.render("user/shop", {
+      categories,
+      products,
+    });
+  } catch (error) {
+    console.error("Error in shop controller:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+exports.shopFetch = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4;
+    const skip = (page - 1) * limit;
+
+    // Fetch products
+    const products = await Product.find({ isActive: true })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalProducts = await Product.countDocuments({ isActive: true });
     const totalPages = Math.ceil(totalProducts / limit);
 
     //wishlist
     const fetchUserId = await userModel.findOne({
       email: req.session.useremail,
     });
-    const userId = fetchUserId._id; 
-    const wishlistItems = await Wishlist.findOne({ user: userId }).select('products').lean();  
+    const userId = fetchUserId._id;
+    const wishlistItems = await Wishlist.find({ user: userId })
+      .select("products")
+      .lean();
 
-    // Initialize wishlistProductIds as an empty set if no wishlist found
+    // Convert the fetched wishlist items into a Set of product IDs
     const wishlistProductIds = new Set(
-      (wishlistItems && wishlistItems.products) ? wishlistItems.products.map(productId => productId.toString()) : []
-    );   //end wishlist
-    products.forEach((product) => {
+      wishlistItems.map((wishlist) => wishlist.products.toString())
+    );
+
+    for (const product of products) {
+      // Set product availability status
       if (product.quantity <= 0) {
         product.status = "Sold Out";
       } else if (product.quantity < 10) {
@@ -424,21 +491,62 @@ exports.shop = async (req, res) => {
       } else {
         product.status = "Available";
       }
+
+      // Check if the product is in the user's wishlist
       product.inWishlist = wishlistProductIds.has(product._id.toString());
 
-    });
-   
-   
-    res.render("user/shop", {
+      // Initialize offer details
+      let highestOffer = null;
+      let finalOfferPrice = product.price;
+
+      // Fetch applicable offers for product and category
+      const productOffer = await Offer.findOne({
+        products: product._id,
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+        status: true, // Check for active offers
+      }).lean();
+
+      const categoryOffer = await Offer.findOne({
+        categories: product.categoryId,
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+        status: true, // Check for active offers
+      }).lean();
+
+      // Compare offers and apply the highest
+      if (productOffer && categoryOffer) {
+        // Compare the discount percentages
+        if (productOffer.offerPercentage > categoryOffer.offerPercentage) {
+          highestOffer = productOffer;
+        } else {
+          highestOffer = categoryOffer;
+        }
+      } else if (productOffer) {
+        highestOffer = productOffer;
+      } else if (categoryOffer) {
+        highestOffer = categoryOffer;
+      }
+      let isOfferExist=false
+      // If there's a valid offer, calculate the final offer price
+      if (highestOffer) {
+        finalOfferPrice = product.price - Math.floor((product.price * highestOffer.offerPercentage) / 100);
+        isOfferExist=true
+      }
+
+      // Attach the offer price to the product
+      product.isOfferExist = isOfferExist
+      product.offerPrice = finalOfferPrice;
+    }
+
+    res.json({
       products,
-      categories,
       currentPage: page,
       totalPages,
-      limit,
     });
   } catch (error) {
-    console.error("Error in shop controller:", error);
-    res.status(500).send("Internal server error");
+    console.error("Error in shopFetch controller:", error);
+    res.status(500).json({ message: "Error fetching products", error });
   }
 };
 
@@ -472,17 +580,51 @@ exports.productDetails = async (req, res) => {
       email: req.session.useremail,
     });
     //wishlist
-    const userId = fetchUserId._id; 
-   
-    const wishlistItems = await Wishlist.findOne({ user: userId }).select('products').lean();  
+    const userId = fetchUserId._id;
 
-    // Initialize wishlistProductIds as an empty set if no wishlist found
-    const wishlistProductIds = new Set(
-      (wishlistItems && wishlistItems.products) ? wishlistItems.products.map(productId => productId.toString()) : []
-    );
-    product.inWishlist = wishlistProductIds.has(product._id.toString());
+    const wishlistItems = await Wishlist.findOne({ user: userId })
+    .select("products")
+    .lean();  
+  let isInWishlist = false;  
+  if (wishlistItems) {
+    isInWishlist = wishlistItems.products.toString() === product._id.toString();
+  }  
+  product.inWishlist = isInWishlist;
+  const productOffer = await Offer.findOne({
+    offerFor: 'product',
+    products: prodId,
+    startDate: { $lte: new Date() },
+    endDate: { $gte: new Date() },
+  }).lean();
 
-//end wishlist
+  // Fetch offers for the category
+  const categoryOffer = await Offer.findOne({
+    offerFor: 'category',
+    categories: product.categoryId,
+    startDate: { $lte: new Date() },
+    endDate: { $gte: new Date() },
+  }).lean();
+
+  // Determine the highest offer
+  let highestOffer = null;
+  let saved =0
+  if (productOffer && categoryOffer) {
+    highestOffer = productOffer.offerPercentage > categoryOffer.offerPercentage
+      ? productOffer
+      : categoryOffer;
+  } else {
+    highestOffer = productOffer || categoryOffer;
+  }
+   let offerExist =false;
+  // Calculate the offer price (if there is an offer)
+  if (highestOffer) {
+    product.offerPercentage = highestOffer.offerPercentage;
+    product.offerPrice = product.price - Math.floor((product.price * (highestOffer.offerPercentage / 100)));
+    offerExist =true
+    product.discountPercentage =highestOffer.offerPercentage
+    product.saved = product.price-product.offerPrice
+  }
+    //end wishlist
     res.render("user/productDetails", {
       product,
       specificationsArray,
@@ -579,13 +721,17 @@ exports.productsSearch = async (req, res) => {
     const fetchUserId = await userModel.findOne({
       email: req.session.useremail,
     });
-    const userId = fetchUserId._id; 
-   
-    const wishlistItems = await Wishlist.findOne({ user: userId }).select('products').lean();  
+    const userId = fetchUserId._id;
+
+    const wishlistItems = await Wishlist.findOne({ user: userId })
+      .select("products")
+      .lean();
 
     // Initialize wishlistProductIds as an empty set if no wishlist found
     const wishlistProductIds = new Set(
-      (wishlistItems && wishlistItems.products) ? wishlistItems.products.map(productId => productId.toString()) : []
+      wishlistItems && wishlistItems.products
+        ? wishlistItems.products.map((productId) => productId.toString())
+        : []
     );
 
     formattedProducts.forEach((product) => {
@@ -597,7 +743,6 @@ exports.productsSearch = async (req, res) => {
         product.status = "Available";
       }
       product.inWishlist = wishlistProductIds.has(product._id.toString());
-
     });
 
     res.json({
