@@ -242,8 +242,10 @@
                 {{!-- <div class="product-specification">Seller: {{product.seller}}</div> --}}
                 {{!-- <div class="product-price">₹{{product.price}} <span class="offer">₹{{product.offerPrice}}
                         {{product.offerPercentage}} Off</span></div> --}}
-                <div class="product-price">₹{{product.price}} <span class="offer">₹400 {{product.offerPercentage}}
-                        Off</span></div>
+                <div class="product-price">₹{{product.offerPrice}} <span class="offer"> {{#if product.offerPercentage}}
+   <span class="offer" style="margin-left:5px">Off {{product.offerPercentage}}% </span>
+{{/if}}
+                        </span></div>
 
                 <div class="product-delivery">Delivery by <span class="delivery-date">{{deliveryDate}}</span> | ₹40
                     Free</div>
@@ -286,7 +288,7 @@
         </div>
         <div class="summary-item">
             <span>Delivery Charges</span>
-            <span>₹{{deliveryCharges}} Free</span>
+            <span>₹{{deliveryCharges}} </span>
         </div>
         <div class="summary-item">
             <span>Secured Packaging Fee</span>

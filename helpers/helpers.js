@@ -66,6 +66,9 @@ handlebars.registerHelper("gt", function (value, compare) {
 handlebars.registerHelper("lt", function (value, compare) {
   return value < compare;
 });
+handlebars.registerHelper("gte", function (value, compare) {
+  return value >= compare;
+});
 //pagination end
 // handlebars.registerHelper('json', function(context) {
 //   return JSON.stringify(context);
@@ -101,8 +104,11 @@ handlebars.registerHelper("dateCaldaerFormate", function (dateString) {
   // Use moment.js to format the date
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+});
+handlebars.registerHelper("ifEquals", function (arg1, arg2, options) {
+  return arg1 == arg2 ? options.fn(this) : options.inverse(this);
 });
 module.exports = handlebars;
