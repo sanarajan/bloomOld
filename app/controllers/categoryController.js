@@ -4,9 +4,9 @@ const mongoose = require("mongoose");
 
 exports.categories = async (req, res) => {
   try {
-    var catupdate = req.flash("catupdate");
-    var pageTitle = "CATEGORIES";
-    var categories = await Category.find({}).lean();
+    const catupdate = req.flash("catupdate");
+    const pageTitle = "CATEGORIES";
+    const categories = await Category.find({}).lean();
     res.render("admin/categories", {
       categories,
       userName: req.session.adusername,
@@ -80,6 +80,7 @@ exports.saveCategory = async (req, res) => {
     if (!req.body.categoryName) {
       return res.status(400).send("Category name is required");
     }
+    req.body.categoryName = req.body.categoryName.toLowerCase();
     const category = new Category(req.body);
 
     await category.save();
@@ -126,66 +127,73 @@ exports.editCategory = async (req, res) => {
   }
 };
 
-exports.updateCategory = async (req, res) => {
-  try {
-    const { _id, categoryName, description, isActive } = req.body;
-
-    let categoryId = new mongoose.Types.ObjectId(_id);
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      console.log("error occured");
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid User ID" });
-    }
-
-    // const userId = mongoose.Types.ObjectId.createFromHexString(req.params.userId)
-    if (!categoryId) {
-      console.log("Not received userId:", req.body._id);
-      return res
-        .status(400)
-        .json({ success: false, message: "User ID is required" });
-    }
-
-    const category = await Category.findOneAndUpdate(
-      { _id: categoryId },
-      {
-        $set: {
-          categoryName: categoryName,
-          description: description,
-          isActive: isActive,
+  exports.updateCategory = async (req, res) => {
+    try {
+      const { _id, categoryName, description, isActive } = req.body;
+  
+      let categoryId = new mongoose.Types.ObjectId(_id);
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        console.log("error occured");
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid User ID" });
+      }
+  
+      // const userId = mongoose.Types.ObjectId.createFromHexString(req.params.userId)
+      if (!categoryId) {
+        console.log("Not received userId:", req.body._id);
+        return res
+          .status(400)
+          .json({ success: false, message: "User ID is required" });
+      }
+      const existingCategory = await Category.findOne({
+        categoryName: categoryName.toLowerCase(),
+        _id: { $ne: categoryId }
+      });
+  
+      if (existingCategory) {
+        return res.status(400).json({ success: false, message: "Category name already exists" });
+      }
+  
+      const category = await Category.findOneAndUpdate(
+        { _id: categoryId },
+        {
+          $set: {
+            categoryName: categoryName,
+            description: description,
+            isActive: isActive,
+          },
         },
-      },
-      { new: true } // To return the updated document
-    );
-
-    if (!category) {
-      console.log("User not found or already inactive");
-      return res
-        .status(404)
-        .json({
+        { new: true } // To return the updated document
+      );
+  
+      if (!category) {
+        console.log("User not found or already inactive");
+        return res.status(404).json({
           success: false,
           message: "User not found or already inactive",
         });
+      }
+      req.flash("catupdate", "Category updated successfully");
+      console.log("User updated successfully:", category);
+      return res
+        .status(200)
+        .json({ success: true, message: "User updated successfully" });
+    } catch (error) {
+        console.error('Update category error:', error);
+    res.status(500).json({ success: false, message: "Internal server error" });
     }
-    req.flash("catupdate", "Category updated successfully");
-    console.log("User updated successfully:", category);
-    return res
-      .status(200)
-      .json({ success: true, message: "User updated successfully" });
-  } catch (error) {
-    console.error("Error in blockUser route:", error);
-    res.status(500).send("Internal server error");
-  }
-};
+  };
+
 
 //subcategories
 
 exports.subCategories = async (req, res) => {
   try {
-    var subcatupdate = req.flash("subcatupdate");
-    var subcatecss = req.flash("subcatecss");
-    var pageTitle = "SUB CATEGORIES";
-    var subcategories = await SubCategory.find({})
+    const subcatupdate = req.flash("subcatupdate");
+    const subcatecss = req.flash("subcatecss");
+    const pageTitle = "SUB CATEGORIES";
+    const subcategories = await SubCategory.find({})
       .populate("categoryId", "categoryName")
       .lean();
     res.render("admin/subcategories", {
@@ -205,7 +213,7 @@ exports.subCategories = async (req, res) => {
 exports.addSubCategory = async (req, res) => {
   try {
     let pageTitle = "Add Sub Category";
-    var categories = await Category.find({}).lean();
+    const categories = await Category.find({}).lean();
     res.render("admin/addSubCategory", {
       userName: req.session.adusername,
       layout: "adminLayout",
@@ -231,7 +239,7 @@ exports.saveSubCategory = async (req, res) => {
     if (!category) {
       return res.status(400).send("Invalid Category ID");
     }
-
+    req.body.subCategoryName = req.body.subCategoryName.toLowerCase();
     // Create and save the subcategory
     const subCategory = new SubCategory(req.body);
     await subCategory.save();
@@ -241,7 +249,7 @@ exports.saveSubCategory = async (req, res) => {
   } catch (error) {
     let errorMessage = "";
 
-    if (error.code === 11000 && error.keyPattern.categoryName) {
+    if (error.code === 11000 && error.keyPattern.subCategoryName) {
       // Duplicate key error for categoryName
       errorMessage = "Sub Category with this name already exists";
     } else {
@@ -266,7 +274,7 @@ exports.editSubCategory = async (req, res) => {
       .populate("categoryId")
       .lean();
 
-    var categorylist = await Category.find({}).lean();
+      const categorylist = await Category.find({}).lean();
     if (subCategory) {
       res.render("admin/editSubCategory", {
         userName: req.session.adusername,
@@ -288,6 +296,7 @@ exports.updateSuCategory = async (req, res) => {
   try {
     const { _id, subCategoryName, categoryId, description, isActive } =
       req.body;
+      subCategoryName = subCategoryName.toLowerCase();
 
     let subcategoryId = new mongoose.Types.ObjectId(_id);
     if (!mongoose.Types.ObjectId.isValid(subcategoryId)) {
@@ -320,12 +329,10 @@ exports.updateSuCategory = async (req, res) => {
 
     if (!subCategory) {
       console.log("User not found or already inactive");
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "User not found or already inactive",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "User not found or already inactive",
+      });
     }
     req.flash("subcatupdate", "Sub Category updated successfully");
     return res
