@@ -1,6 +1,8 @@
 const User = require("../models/userModel"); // Make sure to require the correct User model
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+const moment = require("moment");
+const Order = require("../models/orderModel");
 
 exports.index = async (req, res) => {
   //   const salt = bcrypt.genSaltSync(10);
@@ -58,31 +60,217 @@ exports.adminlogin = async (req, res) => {
 exports.adminHome = async (req, res) => {
   try {
     if (req.session.adusername) {
-      var pageTitle = "Dashboard";
+      const pageTitle = "Dashboard";
       const message = req.flash("success");
       const update = req.flash("update");
       const deleted = req.flash("deleted");
-      var data = await User.find({ userType: 2 }).lean();
+
+      // Filter by date (monthly or yearly)
+
+      // Render the template with all the required data
       res.render("admin/dashboard", {
-        data,
         userName: req.session.adusername,
         message,
         update,
         deleted,
+
         layout: "adminLayout",
         pageTitle,
       });
     } else {
-      console.log("admin else case");
+      res.redirect("/admin");
+    }
+  } catch (error) {
+    console.error("Error in dashboard route:", error);
+    res.status(500).send("Internal server error");
+  }
+};
 
-      if (req.session.adpasswordWrong) {
-        console.log(req.session.adpasswordWrong);
-        res.redirect("/admin/adminlogin", {
-          msg: "Incorrect username or password ",
-        });
-      } else {
-        res.redirect("/admin");
+
+exports.fetchDashboard = async (req, res) => {
+  try {
+    if (req.session.adusername) {
+      // Filter by date (monthly, yearly, or daily)
+      const filter = req.query.filter || "yearly";
+      console.log(filter + " data");
+      let dateFilter;
+      if (filter === "monthly") {
+        dateFilter = {
+          $gte: moment().startOf("month").toDate(),
+          $lt: moment().endOf("month").toDate(),
+        };
+      } else if (filter === "yearly") {
+        dateFilter = {
+          $gte: moment().startOf("year").toDate(),
+          $lt: moment().endOf("year").toDate(),
+        };
+      } else if (filter === "today") {
+        dateFilter = {
+          $gte: moment().startOf("day").toDate(),
+          $lt: moment().endOf("day").toDate(),
+        };
       }
+
+      // Common filter to exclude failed payment status
+      const commonFilter = { 
+        createdAt: dateFilter, 
+        paymentStatus: { $ne: 'Failed' } 
+      };
+
+      // Total Sales and Revenue
+      const totalSales = await Order.countDocuments(commonFilter);
+      const totalRevenueResult = await Order.aggregate([
+        { $match: commonFilter },
+        { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+      ]);
+      const totalRevenue = totalRevenueResult[0]?.totalRevenue || 0;
+
+      const customerCount = await User.countDocuments({ userType: 2 });
+
+      // 1. Top 10 Best Selling Products with Price, Image, Revenue
+      const topProducts = await Order.aggregate([
+        { $match: commonFilter },
+        { $unwind: "$orderedProducts" },
+        {
+          $group: {
+            _id: "$orderedProducts.productId",
+            productName: { $first: "$orderedProducts.productName" },
+            price: { $first: "$orderedProducts.price" },
+            offerPrice: { $first: "$orderedProducts.offerPrice" },
+            prodQuantity: { $first: "$orderedProducts.quantity" },
+            image: { $first: "$orderedProducts.image" },
+            totalSold: { $sum: "$orderedProducts.quantity" },
+            totalRevenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$orderedProducts.offerPrice", "$orderedProducts.price"] },
+                  "$orderedProducts.quantity",
+                ],
+              },
+            },
+          },
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 },
+      ]);
+      // 2. Top 10 Best Selling Categories with Names
+      const topCategories = await Order.aggregate([
+        { $match: commonFilter },
+        { $unwind: "$orderedProducts" },
+        {
+          $group: {
+            _id: "$orderedProducts.category",
+            totalSold: { $sum: "$orderedProducts.quantity" },
+          },
+        },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "_id",
+            foreignField: "_id",
+            as: "category",
+          },
+        },
+        { $unwind: "$category" },
+        {
+          $project: {
+            _id: 1,
+            totalSold: 1,
+            categoryName: "$category.categoryName",
+          },
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 },
+      ]);
+
+
+      ///////
+      const subCategoriesInOrders = await Order.aggregate([
+        { $match: commonFilter },
+        { $unwind: "$orderedProducts" },
+        { $group: { _id: "$orderedProducts.subcategory" } },
+        { $lookup: {
+            from: "subcategories",
+            localField: "_id",
+            foreignField: "_id",
+            as: "subcategoryDetails"
+          }
+        },
+        { $unwind: "$subcategoryDetails" },
+        { $project: { 
+            _id: 1, 
+            subCategoryName: "$subcategoryDetails.subCategoryName"
+          }
+        }
+      ]);
+      
+      console.log(subCategoriesInOrders);
+      
+      ///
+      // 3. Top 10 Best Selling Subcategories with Names
+      const topSubCategories = await Order.aggregate([
+        { $match: commonFilter },
+        { $unwind: "$orderedProducts" },
+        {
+          $group: {
+            _id: "$orderedProducts.subcategory",
+            totalSold: { $sum: "$orderedProducts.quantity" },
+          },
+        },
+        {
+          $lookup: {
+            from: "subcategories",
+            localField: "_id",
+            foreignField: "_id",
+            as: "subcategory",
+          },
+        },
+        { $unwind: "$subcategory" },
+        {
+          $project: {
+            _id: 1,
+            totalSold: 1,
+            subCategoryName: "$subcategory.subCategoryName",
+          },
+        },
+        { $sort: { totalSold: -1 } },
+        { $limit: 10 },
+      ]);
+
+
+      // Prepare data for charts and tables
+      const productLabels = topProducts.map((p) => p.productName);
+      const productData = topProducts.map((p) => p.totalSold);
+
+      const categoryLabels = topCategories.map((c) => c.categoryName);
+      const categoryData = topCategories.map((c) => c.totalSold);
+
+      const subCategoryLabels = topSubCategories.map(
+        (sc) => sc.subCategoryName
+      );
+      const subCategoryData = topSubCategories.map((sc) => sc.totalSold);
+
+      // Render the template with all the required data
+      res.json({
+        userName: req.session.adusername,
+        topProducts,
+        topCategories,
+        topSubCategories,
+        productLabels: JSON.stringify(productLabels),
+        productData: JSON.stringify(productData),
+        categoryLabels: JSON.stringify(categoryLabels),
+        categoryData: JSON.stringify(categoryData),
+        subCategoryLabels: JSON.stringify(subCategoryLabels),
+        subCategoryData: JSON.stringify(subCategoryData),
+        totalSales,
+        totalRevenue,
+        customerCount,
+        filter,
+        layout: "adminLayout",
+        ok: true,
+      });
+    } else {
+      res.redirect("/admin");
     }
   } catch (error) {
     console.error("Error in dashboard route:", error);
