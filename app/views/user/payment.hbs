@@ -286,7 +286,6 @@
                     <input type="hidden" name="razorpayOrderId" id="razorpayOrderId">
                     <input type="hidden" name="razorpaySignature" id="razorpaySignature">
                     <!-- Hidden field for coupon ID -->
-
                     <input type="hidden" name="productIds"
                         value="{{#each orderDetails.cartItems}}{{this.product._id}}{{#unless @last}},{{/unless}}{{/each}}">
                     <button id="payButton" class="pay-button" type="button">Pay</button>

@@ -433,7 +433,6 @@ exports.removeCartItem = async (req, res) => {
     // Remove the item from the cart
     cart.products.splice(itemIndex, 1);
 
-    
     // Save the updated cart
     await cart.save();
     const updatedCart = await Cart.findOne({ user: user._id, isActive: true })
