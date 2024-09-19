@@ -31,6 +31,8 @@ router.post('/verifyOtp', userController.verifyOtp);
 
 //product list
 router.get('/shop',isUserAuthenticated, productController.shop);
+router.get('/shopFetch',isUserAuthenticated, productController.shopFetch);
+
 router.get('/productDetails/:id',isUserAuthenticated,productController.productDetails);
 router.get('/productsSearch',isUserAuthenticated,productController.productsSearch);
 
@@ -91,18 +93,42 @@ router.delete('/removeCartItem/:productId',isUserAuthenticated,cartController.re
 router.get('/checkout',isUserAuthenticated,cartController.checkout);
 router.post('/payment',isUserAuthenticated,cartController.payment);
 router.post('/placeOrder',isUserAuthenticated,cartController.placeOrder);
+router.post('/verifyPayment',isUserAuthenticated, cartController.verifyPayment);
+router.get('/paymentSuccess/:orderId',isUserAuthenticated, cartController.paymentSuccess);
+router.post('/paymentFailed',isUserAuthenticated, cartController.paymentFailed);
+router.get('/paymentFailedPage',isUserAuthenticated, cartController.paymentFailedPage);
+
+
+
+
+
+
 router.get('/myOrders',isUserAuthenticated,cartController.myOrders);
 router.get('/fetchOrders',isUserAuthenticated,cartController.fetchOrders);
 router.post('/cancelOrder',isUserAuthenticated, cartController.cancelOrder);
 router.post('/returnOrder', isUserAuthenticated,orderController.returnOrder);
+router.get('/reOrder/:id', isUserAuthenticated,orderController.reOrder);
+
+router.get('/selectedOrder/:id', isUserAuthenticated,orderController.selectedOrder);
+router.post('/createOrder', isUserAuthenticated,cartController.createOrder);
+router.get('/invoice',isUserAuthenticated,orderController.invoice);
+router.post('/invoiceDownload',isUserAuthenticated,orderController.invoiceDownload);
+
+
 
 
 //wishlist
 router.post('/addToWishlist',isUserAuthenticated, cartController.addToWishlist);
 router.get('/whishlist',isUserAuthenticated,cartController.whishlist);
+router.get('/getWishlistData',isUserAuthenticated,cartController.getWishlistData);
+
+
 router.delete('/deletWishlist',isUserAuthenticated,cartController.deletWishlist);
 
 router.get('/wallet',isUserAuthenticated,cartController.wallet);
+router.get('/fetchWallet',isUserAuthenticated,cartController.fetchWallet);
+
+
 
 
 

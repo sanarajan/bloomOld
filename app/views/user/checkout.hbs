@@ -388,7 +388,7 @@
                         <div class="product-specification">Category: {{product.subCategoryId}}</div>
                         <!-- Adjust as needed -->
                         <div class="product-status">Delivered on {{this.deliveredOn}}</div> <!-- Adjust if necessary -->
-                        <div class="product-price">${{product.price}}</div>
+                        <div class="product-price">₹{{product.price}}</div>
                         <div class="product-delivery">Your item has been delivered</div>
                         {{!-- <div class="quantity-controls">
                             <button onclick="changeQuantity({{product._id}}, -1)">-</button>
@@ -409,13 +409,13 @@
 
         <div class="right-section">
             <h4>Cart Summary {{itemCount}}</h4>
-            <div class="summary-detail">Price: <span>{{totalPrice}}</span></div>
-            <div class="summary-detail">Discount: <span>0</span></div>
-            <div class="summary-detail">Delivery Charges: <span>{{deliveryCharges}}</span></div>
-            <div class="summary-detail">Secured Packaging Fee: <span>{{packagingFee}}</span></div>
-            <div class="summary-detail">Amount Saved: <span>{{totalSavings}}</span></div>
+            <div class="summary-detail">Price: <span>₹{{totalPrice}}</span></div>
+            <div class="summary-detail">Discount: <span>₹{{totalDiscount}}</span></div>
+            <div class="summary-detail">Delivery Charges: <span>₹{{deliveryCharges}}</span></div>
+            <div class="summary-detail">Secured Packaging Fee: <span>₹{{packagingFee}}</span></div>
+            <div class="summary-detail">Amount Saved: <span>₹{{totalSavings}}</span></div>
 
-            <div class="summary-detail "> <strong>Total Amount:</strong> <span>{{totalAmount}}</span></div>
+            <div class="summary-detail "> <strong>Total Amount:</strong> <span>₹{{totalAmount}}</span></div>
         </div>
     </div>
     <form id="priceSummeryForm" action="/payment" method="POST">
