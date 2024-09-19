@@ -115,8 +115,6 @@ router.get('/invoice',isUserAuthenticated,orderController.invoice);
 router.post('/invoiceDownload',isUserAuthenticated,orderController.invoiceDownload);
 
 
-
-
 //wishlist
 router.post('/addToWishlist',isUserAuthenticated, cartController.addToWishlist);
 router.get('/whishlist',isUserAuthenticated,cartController.whishlist);

@@ -8,12 +8,16 @@ const upload = require('../config/multerConfig');
 const productController = require('../app/controllers/productController');
 const orderController =require('../app/controllers/orderController');
 const couponController = require('../app/controllers/couponController');
+const reportController =  require('../app/controllers/reportController');
 const isAdminAuthenticated = require('../middleware/auth');
+const offerController =require('../app/controllers/offerController');
 
 router.get('/', adminController.index);
 router.post('/adminlogin', adminController.adminlogin);
 router.get('/adminHome',isAdminAuthenticated, adminController.adminHome);
 router.get('/adminLogout',isAdminAuthenticated, adminController.adminLogout);
+router.get('/fetchDashboard',isAdminAuthenticated, adminController.fetchDashboard);
+
 
 
 //users
@@ -60,8 +64,18 @@ router.post('/saveCoupon', isAdminAuthenticated,upload.single('couponImage'), co
 // upload.array('offerImages', 5)
 router.patch('/changeCouponStatus', isAdminAuthenticated,couponController.changeCouponStatus)
 router.get('/editCoupon/:couponId',isAdminAuthenticated, couponController.editCoupon);
-
 router.post('/updateCoupon', isAdminAuthenticated,upload.single('couponImage'), couponController.updateCoupon);
+
+//reports
+router.get('/salesReportList',isAdminAuthenticated, reportController.salesReportList);
+router.get('/salesReport',isAdminAuthenticated, reportController.salesReport);
+
+//offer
+router.get('/offers',isAdminAuthenticated, offerController.offers);
+router.get('/addOffer',isAdminAuthenticated, offerController.addOffer);
+router.post('/saveOffer',isAdminAuthenticated, offerController.saveOffer);
+router.patch('/offerDelete',isAdminAuthenticated, offerController.offerDelete);
+
 
 
 

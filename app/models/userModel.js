@@ -13,8 +13,8 @@ const userSchema = new mongoose.Schema({
   userType: { type: Number, default: 2 }, // 1 for admin, 2 for regular users
   isActive: { type: Boolean, default: true },
   verified: { type: Boolean },
-  address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }] // Array of address references
-
+  address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }] ,// Array of address references
+  referralId:{ type: String, unique: true }
 });
 
 // Hash password before saving

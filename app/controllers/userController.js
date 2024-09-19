@@ -2,12 +2,12 @@ const userModel = require("../models/userModel");
 const Product = require("../models/productModel");
 const Address = require("../models/addressModel");
 const userOTPVerification = require("../models/userOTPVerification");
-const Wallet = require('../models/walletModel');
+const Wallet = require("../models/walletModel");
 
 const { sendOTPEmail } = require("../../utils/otpEmail");
 const bcrypt = require("bcryptjs"); //password hashing
 const crypto = require("crypto"); //for otp generating
-
+const baseUrl = process.env.BASEURL;
 const generateOTP = () => {
   return crypto.randomInt(100000, 999999).toString();
 };
@@ -33,8 +33,8 @@ exports.index = (req, res) => {
 
 exports.users = async (req, res) => {
   try {
-    var pageTitle = "USERS";
-    var data = await userModel.find({ userType: 2 }).lean();
+    const pageTitle = "USERS";
+    const data = await userModel.find({ userType: 2 }).lean();
     res.render("admin/users", { data, layout: "adminLayout", pageTitle });
   } catch (error) {
     console.error("Error in index route:", error);
@@ -74,14 +74,18 @@ exports.home = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+function generateReferralId(firstName) {
+  const randomCode = Math.floor(1000 + Math.random() * 9000); // Generate a random 4-digit number
+  const namePart = firstName.substring(0, 4).toUpperCase();  // Take the first 4 letters of the first name
+  return `${namePart}${randomCode}`;
+}
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber } = req.body;
+    const { firstName, lastName, email, password,referalId , phoneNumber } = req.body;
     const username = `${firstName} ${lastName}`;
     const verified = false;
     userType = 2;
     isActive = true;
-
     // Check if email or phone number already exists
     const existingUser = await userModel.findOne({
       $or: [{ email }, { phoneNumber }],
@@ -92,15 +96,23 @@ exports.register = async (req, res) => {
       if (existingUser.email === email) errorMessage = "Email already in use";
       if (existingUser.phoneNumber === phoneNumber)
         errorMessage = "Phone Number already in use";
-      console.log(existingUser);
       return res.render("user/userRegistration", {
         errorMessage,
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
+        formData: req.body
       });
     }
+    const referralId = generateReferralId(firstName);
+    if (referalId) {
+      const referredUser = await userModel.findOne({ referralId: referalId });
+      if (!referredUser) {
+        return res.status(400).render('user/userRegistration', {
+          errorMessage: 'Invalid referral ID.',
+          formData: req.body // pass all the submitted form data
+      });
+      } 
+        
+     
+  }
 
     // Create new user
     const newUser = new userModel({
@@ -110,6 +122,7 @@ exports.register = async (req, res) => {
       phoneNumber,
       verified,
       userType,
+      referralId,
       isActive,
     });
     const result = await newUser.save();
@@ -117,11 +130,24 @@ exports.register = async (req, res) => {
       // Create a wallet for the new user
       const newWallet = new Wallet({
         userId: result._id,
-        Balance: 0,  // Initialize the wallet balance to 0
-        History: []  // Start with an empty transaction history
+        Balance: 0, // Initialize the wallet balance to 0
+        History: [], // Start with an empty transaction history
       });
 
-      await newWallet.save(); 
+      await newWallet.save();
+      if (referalId) {
+      console.log("yes referal ullathanu")
+          // Credit 200 Rs to the referred user's wallet
+          const wallet = await Wallet.findOne({ userId: result._id });
+          console.log(wallet+" iyale wallet")
+          wallet.Balance += 200;
+          wallet.History.push({
+              TransactionType: 'Referral',
+              Amount: 200,
+              Date: new Date(),
+          });
+          await wallet.save();
+        }
       req.session.userType = newUser.userType;
       req.session.userId = newUser._id;
       req.session.username = newUser.username;
@@ -274,22 +300,18 @@ exports.verifyOtp = async (req, res) => {
       }
     } else {
       // OTP is invalid or expired
-      return res
-        .status(400)
-        .json({
-          success: true,
-          sess: true,
-          message: "Invalid or expired OTP.",
-        });
+      return res.status(400).json({
+        success: true,
+        sess: true,
+        message: "Invalid or expired OTP.",
+      });
     }
   } catch (error) {
     console.error("Error in OTP verification:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error verifying OTP. Please try again.",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error verifying OTP. Please try again.",
+    });
   }
 };
 
@@ -300,21 +322,23 @@ exports.logout = (req, res) => {
 
 exports.profile = async (req, res) => {
   try {
-    var userData = await userModel.findOne({
+    let userData = await userModel.findOne({
       email: req.session.useremail,
       userType: 2,
       isActive: true,
     });
     if (userData) {
       const [firstName, lastName] = userData.username.split(" ");
+      const username= firstName+" "+lastName
       res.render("user/userAccount", {
         showSidebar: true,
         userData,
         firstName,
         lastName,
+        username
       });
     } else {
-      var msgErr = "No userfound";
+      const msgErr = "No userfound";
       res.render("user/userAccount", { showSidebar: true, msgErr });
     }
 
@@ -538,5 +562,3 @@ exports.deleteAddress = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
-

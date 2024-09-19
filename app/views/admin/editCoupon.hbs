@@ -29,7 +29,7 @@
             <h5 class="card-title"></h5>
             <!-- Horizontal Form -->
             <form id="editCouponForm" action="/admin/updateCoupon" method="post" enctype="multipart/form-data">
-             <input type="hidden" name="_id" value="{{coupon._id}}">
+              <input type="hidden" name="_id" value="{{coupon._id}}">
               <div class="row mb-3">
                 <label for="couponImage" class="col-sm-3 col-form-label">Coupon Image</label>
                 <div class="col-sm-9">
@@ -40,8 +40,8 @@
                     </div>
                     <!-- Image preview takes up 50% of the width -->
                     <div class="col-sm-6">
-                    <img src="{{#if coupon.couponImage}}/{{coupon.couponImage}}{{else}}/images/no-image.jpeg{{/if}}"
-     alt="Coupon Image" class="img-fluid" id="couponImagePreview" style="height:70px;width:70px">
+                      <img src="{{#if coupon.couponImage}}/{{coupon.couponImage}}{{else}}/images/no-image.jpeg{{/if}}"
+                        alt="Coupon Image" class="img-fluid" id="couponImagePreview" style="height:70px;width:70px">
 
                     </div>
                   </div>
@@ -49,10 +49,11 @@
                 </div>
               </div>
 
-               <div class="row mb-3">
+              <div class="row mb-3">
                 <label for="couponName" class="col-sm-3 col-form-label">Name</label>
                 <div class="col-sm-9">
-                  <input type="text" name="couponName" id="couponName" class="form-control" value="{{coupon.couponName}}">
+                  <input type="text" name="couponName" id="couponName" class="form-control"
+                    value="{{coupon.couponName}}">
                   <div id="couponName_error" style="color: red;">{{#if error}}{{error}}{{/if}}</div>
                 </div>
               </div>
@@ -60,7 +61,8 @@
               <div class="row mb-3">
                 <label for="startDate" class="col-sm-3 col-form-label">Start Date</label>
                 <div class="col-sm-9">
-                  <input type="date" name="startDate" id="startDate" class="form-control" value="{{dateCaldaerFormate coupon.startDate}}">
+                  <input type="date" name="startDate" id="startDate" class="form-control"
+                    value="{{dateCaldaerFormate coupon.startDate}}">
                   <div id="startDate_error" style="color: red;"></div>
                 </div>
               </div>
@@ -68,7 +70,8 @@
               <div class="row mb-3">
                 <label for="endDate" class="col-sm-3 col-form-label">End Date</label>
                 <div class="col-sm-9">
-                  <input type="date" name="endDate" id="endDate" class="form-control" value="{{dateCaldaerFormate coupon.endDate}}">
+                  <input type="date" name="endDate" id="endDate" class="form-control"
+                    value="{{dateCaldaerFormate coupon.endDate}}">
                   <div id="endDate_error" style="color: red;"></div>
                 </div>
               </div>
@@ -84,7 +87,8 @@
               <div class="row mb-3">
                 <label for="minPurchase" class="col-sm-3 col-form-label">Minimum Purchase</label>
                 <div class="col-sm-9">
-                  <input type="number" name="minPurchase" id="minPurchase" class="form-control" value="{{coupon.minPurchase}}">
+                  <input type="number" name="minPurchase" id="minPurchase" class="form-control"
+                    value="{{coupon.minPurchase}}">
                   <div id="minPurchase_error" style="color: red;"></div>
                 </div>
               </div>
@@ -94,15 +98,16 @@
                 <div class="col-sm-9">
                   <select name="discountType" id="discountType" class="form-control">
                     <option value="">--Select--</option>
-                    <option value="Percentage" {{#if (eq coupon.discountType "Percentage")}}selected{{/if}}>Percentage
+                    <option value="Percentage" {{#if (eq coupon.discountType "Percentage" )}}selected{{/if}}>Percentage
                     </option>
-                    <option value="Amount" {{#if (eq coupon.discountType "Amount")}}selected{{/if}}>Amount</option>
+                    <option value="Amount" {{#if (eq coupon.discountType "Amount" )}}selected{{/if}}>Amount</option>
                   </select>
                   <div id="discountType_error" style="color: red;"></div>
                 </div>
               </div>
 
-              <div class="row mb-3" id="discountPercentageRow" style="{{#if (eq coupon.discountType "Percentage")}}display: flex;{{else}}display: none;{{/if}}">
+              <div class="row mb-3" id="discountPercentageRow" style="{{#if (eq coupon.discountType "
+                Percentage")}}display: flex;{{else}}display: none;{{/if}}">
                 <label for="discountPercentage" class="col-sm-3 col-form-label">Discount Percentage</label>
                 <div class="col-sm-9">
                   <input type="number" name="discountPercentage" id="discountPercentage" class="form-control"
@@ -111,7 +116,8 @@
                 </div>
               </div>
 
-              <div class="row mb-3" id="discountValueRow" style="{{#if (eq coupon.discountType "Amount")}}display: flex;{{else}}display: none;{{/if}}">
+              <div class="row mb-3" id="discountValueRow" style="{{#if (eq coupon.discountType " Amount")}}display:
+                flex;{{else}}display: none;{{/if}}">
                 <label for="discountValue" class="col-sm-3 col-form-label">Discount Value</label>
                 <div class="col-sm-9">
                   <input type="number" name="discountValue" id="discountValue" class="form-control"
@@ -146,7 +152,8 @@
                   <select name="category" id="category" class="form-control">
                     <option value="">--Select--</option>
                     {{#each categories}}
-                    <option value="{{this._id}}" {{#if (eq ../coupon.category._id this._id)}}selected{{/if}}>{{this.categoryName}}
+                    <option value="{{this._id}}" {{#if (eq ../coupon.category._id this._id)}}selected{{/if}}>
+                      {{this.categoryName}}
                     </option>
                     {{/each}}
                   </select>
@@ -169,9 +176,9 @@
 
 <script>
   // JavaScript to handle dynamic changes
- 
 
-   document.addEventListener('DOMContentLoaded', function () {
+
+  document.addEventListener('DOMContentLoaded', function () {
     // Prevent negative numbers from being entered
     const numberInputs = document.querySelectorAll('input[type="number"]');
     numberInputs.forEach(function (input) {
@@ -193,7 +200,9 @@
       const errorDiv = document.getElementById(`${elementId}_error`);
       if (errorDiv) {
         errorDiv.textContent = message;
-      }
+      }else {
+    console.error(`Error div with id ${elementId}_error not found.`);
+  }
     }
 
     // Function to clear error messages
@@ -239,8 +248,8 @@
       }
 
       // Validate Discount Value
- const discountValue = document.getElementById('discountValue').value.trim();
- const discountPerctg= document.getElementById('discountPercentage').value.trim();
+      const discountValue = document.getElementById('discountValue').value.trim();
+      const discountPerctg = document.getElementById('discountPercentage').value.trim();
       const discountType = document.getElementById('discountType').value;
       if (discountType === 'Amount') {
         if (!discountValue) {
@@ -249,11 +258,14 @@
         } else if (isNaN(discountValue) || Number(discountValue) < 0) {
           setError('discountValue', 'Discount Value must be a positive number.');
           isValid = false;
-        } else if (Number(discountValue) > Number(minPurchase)) {
+        } else if (parseFloat(discountValue) >= parseFloat(minPurchase)) {
           setError('discountValue', 'Discount Value cannot exceed Minimum Purchase.');
           isValid = false;
-        }
-      }else{
+        }else {
+      // Clear error if valid
+      setError('discountValue', '');
+    }
+      } else {
         if (!discountPerctg) {
           setError('discountValue', 'Discount Value is required.');
           isValid = false;
@@ -293,20 +305,24 @@
         isValid = false;
       }
       //image validation 
-       // Validate Image
+      // Validate Image
       const couponImageInput = document.getElementById('couponImage');
       const imageSrc = document.getElementById('couponImagePreview').src;
       const file = couponImageInput.files[0];
       const maxFileSize = 2 * 1024 * 1024; // 2 MB
-      if ((!imageSrc || imageSrc === '/images/no-image.jpeg')&&file) {
-         setError('couponImage', 'Coupon image is required.');
+      if ((!imageSrc || imageSrc === '/images/no-image.jpeg') && file) {
+        setError('couponImage', 'Coupon image is required.');
         isValid = false;
-      } else if (file&&!file.type.startsWith('image/')) {
+      } else if (file && !file.type.startsWith('image/')) {
         setError('couponImage', 'Selected file is not a valid image.');
         isValid = false;
-      } else if (file&&file.size > maxFileSize) {
+      } else if (file && file.size > maxFileSize) {
         setError('couponImage', 'Image size should not exceed 2 MB.');
         isValid = false;
+      }
+      let discountpect = validateDiscountValue();
+      if (discountpect === false) {
+        isValid = false
       }
 
       if (isValid) {
@@ -317,7 +333,7 @@
 
     // Real-time validation
     function setupRealTimeValidation() {
-      const fields = ['couponName', 'description', 'minPurchase', 'discountValue', 'userUsageLimit', 'startDate', 'endDate', 'category'];
+      const fields = ['couponName', 'description', 'minPurchase','discountPercentage', 'discountValue', 'userUsageLimit', 'startDate', 'endDate', 'category'];
       fields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -329,16 +345,22 @@
           });
         }
       });
-
       // Special real-time validation for discount value and minimum purchase
       const discountValueInput = document.getElementById('discountValue');
       const minPurchaseInput = document.getElementById('minPurchase');
+      const discountPercentageInput = document.getElementById('discountPercentage');
 
       if (discountValueInput && minPurchaseInput) {
+        
         discountValueInput.addEventListener('input', function () {
           validateDiscountValue();
         });
         minPurchaseInput.addEventListener('input', function () {
+          validateDiscountValue();
+        });
+      }
+      if (discountPercentageInput) {
+        discountPercentageInput.addEventListener('input', function () {
           validateDiscountValue();
         });
       }
@@ -352,15 +374,22 @@
     }
 
     function validateDiscountValue() {
+      let isValid = true;
       const discountValue = document.getElementById('discountValue').value.trim();
       const minPurchase = document.getElementById('minPurchase').value.trim();
       const discountType = document.getElementById('discountType').value;
-
-      if (discountType === 'amount' && discountValue && minPurchase && Number(discountValue) > Number(minPurchase)) {
+      const discountPercentage = document.getElementById('discountPercentage').value;
+      if (discountType === 'amount' && discountValue && minPurchase && Number(discountValue) >= Number(minPurchase)) {
         setError('discountValue', 'Discount Value cannot exceed Minimum Purchase.');
+        isValid = false;
+      } else if (discountType === "Percentage" && parseFloat(discountPercentage) > 25) {
+        setError('discountPercentage', 'Discount percentage  cannot exceed 25%.');
+        isValid = false;
       } else {
         errorVanish('discountValue');
+        isValid = true;
       }
+      return isValid
     }
 
     // JavaScript to show/hide discountPercentage field based on discountType selection
@@ -419,34 +448,34 @@
 
     // Your existing form validation and other scripts...
   });
-//date selecting and matching
-document.addEventListener('DOMContentLoaded', function () {
-  // Function to update the minimum date for end date
-  function updateEndDateMinDate() {
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-  endDateInput.value = '';
-    // Get the selected start date
-    const startDateValue = startDateInput.value;
+  //date selecting and matching
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to update the minimum date for end date
+    function updateEndDateMinDate() {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      endDateInput.value = '';
+      // Get the selected start date
+      const startDateValue = startDateInput.value;
 
-    // Set the minimum date for end date to the selected start date
-    if (startDateValue) {
-      endDateInput.setAttribute('min', startDateValue);
+      // Set the minimum date for end date to the selected start date
+      if (startDateValue) {
+        endDateInput.setAttribute('min', startDateValue);
 
-      // If end date is before the new start date, clear the end date
-      if (endDateInput.value && new Date(endDateInput.value) < new Date(startDateValue)) {
-        endDateInput.value = '';
+        // If end date is before the new start date, clear the end date
+        if (endDateInput.value && new Date(endDateInput.value) < new Date(startDateValue)) {
+          endDateInput.value = '';
+        }
+      } else {
+        // If start date is not selected, clear the minimum date for end date
+        endDateInput.removeAttribute('min');
       }
-    } else {
-      // If start date is not selected, clear the minimum date for end date
-      endDateInput.removeAttribute('min');
     }
-  }
 
-  // Add event listener to the startDate field
-  document.getElementById('startDate').addEventListener('change', updateEndDateMinDate);
-  // Initialize visibility and end date handling
-   // This will set the initial state correctly
-});
+    // Add event listener to the startDate field
+    document.getElementById('startDate').addEventListener('change', updateEndDateMinDate);
+    // Initialize visibility and end date handling
+    // This will set the initial state correctly
+  });
 
 </script>

@@ -96,34 +96,45 @@
                         <form id="registrationForm" method="POST" action="/register">
                             <div class="mb-3">
                                 <label for="firstName" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required
+                                    value="{{formData.firstName}}">
                                 <div class="error-message" id="firstNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="lastName" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required
+                                    value="{{formData.lastName}}">
                                 <div class="error-message" id="lastNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control" id="email" name="email" required
+                                    value="{{formData.email}}">
                                 <div class="error-message" id="emailError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    value="{{formData.password}}">
                                 <div class="error-message" id="passwordError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm Password</label>
                                 <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-                                    required>
+                                    required value="{{formData.confirmPassword}}">
                                 <div class="error-message" id="confirmPasswordError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="phoneNumber" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required
+                                    value="{{formData.phoneNumber}}">
                                 <div class="error-message" id="phoneNumberError"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="referalId" class="form-label">Referral ID</label>
+                                <input type="text" class="form-control" id="referalId" name="referalId"
+                                    value="{{formData.referalId}}">
+                                <div class="error-message" id="referalIdError"></div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Create Account</button>
                         </form>

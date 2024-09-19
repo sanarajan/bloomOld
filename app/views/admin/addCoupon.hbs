@@ -29,7 +29,7 @@
 
             <!-- Horizontal Form -->
             <form id="couponForm" action="/admin/saveCoupon" method="post" enctype="multipart/form-data">
-             
+
 
               <div class="row mb-3">
                 <label for="couponImage" class="col-sm-3 col-form-label">Coupon Image</label>
@@ -49,7 +49,7 @@
                 </div>
               </div>
 
-               <div class="row mb-3">
+              <div class="row mb-3">
                 <label for="couponName" class="col-sm-3 col-form-label">Name</label>
                 <div class="col-sm-9">
                   <input type="text" name="couponName" id="couponName" class="form-control" value="{{couponName}}">
@@ -171,6 +171,10 @@
 <!-- End #main -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const today = new Date().toISOString().split('T')[0];
+    const startDatePicker = document.getElementById('startDate');
+    startDatePicker.setAttribute('min', today);
+
     // Prevent negative numbers from being entered
     const numberInputs = document.querySelectorAll('input[type="number"]');
     numberInputs.forEach(function (input) {
@@ -200,7 +204,27 @@
       const errorDivs = document.querySelectorAll('[id$="_error"]');
       errorDivs.forEach(div => div.textContent = '');
     }
+    //image valid preview
+    function validateImage() {
+      const couponImage = document.getElementById('couponImagePreview');
+      // Create a new image element to test loading
+      let flg = true
+      const img = new Image();
+      img.src = couponImage.src;
 
+      img.onload = function () {
+        console.log('Image exists');
+        flg = true;
+      };
+
+      img.onerror = function () {
+        console.log('Image does not exist');
+        flg = false;
+      };
+
+      // Prevent form submission by default, allow it if image loads
+      return flg;
+    }
     // Function to handle form submission
     document.getElementById('couponForm').addEventListener('submit', function (event) {
       event.preventDefault(); // Prevent form submission
@@ -239,7 +263,7 @@
 
       // Validate Discount Value
       const discountValue = document.getElementById('discountValue').value.trim();
-       const discountPerctg= document.getElementById('discountPercentage').value.trim();
+      const discountPerctg = document.getElementById('discountPercentage').value.trim();
 
       const discountType = document.getElementById('discountType').value;
       if (discountType === 'amount') {
@@ -253,14 +277,14 @@
           setError('discountValue', 'Discount Value cannot exceed Minimum Purchase.');
           isValid = false;
         }
-      }else{
+      } else {
         if (!discountPerctg) {
           setError('discountValue', 'Discount Value is required.');
           isValid = false;
         } else if (isNaN(discountPerctg) || Number(discountPerctg) < 0) {
           setError('discountValue', 'Discount Value must be a positive number.');
           isValid = false;
-        } else if (Number(discountPerctg) > Number(minPurchase)) {alert("ruy")
+        } else if (Number(discountPerctg) > Number(minPurchase)) {
           setError('discountPercentage', 'Discount Percebtage  cannot exceed Minimum Purchase.');
           isValid = false;
         }
@@ -297,14 +321,22 @@
       const file = couponImageInput.files[0];
       const maxFileSize = 2 * 1024 * 1024; // 2 MB
       if (!file) {
-        setError('couponImage', 'Coupon image is required.');
-        isValid = false;
+
+        let imgValid = validateImage()
+        if (!imgValid) {
+          setError('couponImage', 'Coupon image is required.');
+          isValid = false;
+        }
       } else if (!file.type.startsWith('image/')) {
         setError('couponImage', 'Selected file is not a valid image.');
         isValid = false;
       } else if (file.size > maxFileSize) {
         setError('couponImage', 'Image size should not exceed 2 MB.');
         isValid = false;
+      }
+      let discountpect = validateDiscountValue();
+      if (discountpect === false) {
+        isValid = false
       }
       if (isValid) {
         // Form is valid, submit the form
@@ -314,7 +346,7 @@
 
     // Real-time validation
     function setupRealTimeValidation() {
-      const fields = ['couponName', 'description', 'minPurchase', 'discountValue', 'userUsageLimit', 'startDate', 'endDate', 'category'];
+      const fields = ['couponName', 'description', 'minPurchase', 'discountValue', 'discountPercentage', 'userUsageLimit', 'startDate', 'endDate', 'category'];
       fields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -330,12 +362,17 @@
       // Special real-time validation for discount value and minimum purchase
       const discountValueInput = document.getElementById('discountValue');
       const minPurchaseInput = document.getElementById('minPurchase');
-
+      const discountPercentageInput = document.getElementById('discountPercentage');
       if (discountValueInput && minPurchaseInput) {
         discountValueInput.addEventListener('input', function () {
           validateDiscountValue();
         });
         minPurchaseInput.addEventListener('input', function () {
+          validateDiscountValue();
+        });
+      }
+      if (discountPercentageInput) {
+        discountPercentageInput.addEventListener('input', function () {
           validateDiscountValue();
         });
       }
@@ -349,19 +386,28 @@
     }
 
     function validateDiscountValue() {
+      let isValid = true;
       const discountValue = document.getElementById('discountValue').value.trim();
       const minPurchase = document.getElementById('minPurchase').value.trim();
       const discountType = document.getElementById('discountType').value;
+      const discountPercentage = document.getElementById('discountPercentage').value;
+      if (discountType === 'Amount' && discountValue && minPurchase && parseFloat(discountValue) >= parseFloat(minPurchase)) {
 
-      if (discountType === 'amount' && discountValue && minPurchase && Number(discountValue) > Number(minPurchase)) {
+        isValid = false;
         setError('discountValue', 'Discount Value cannot exceed Minimum Purchase.');
+      } else if (discountType === "Percentage" && parseFloat(discountPercentage) > 25) {
+        setError('discountPercentage', 'Discount percentage  cannot exceed 25%.');
+        isValid = false;
       } else {
         errorVanish('discountValue');
+        isValid = true;
       }
+      return isValid
     }
 
     // JavaScript to show/hide discountPercentage field based on discountType selection
     function updateDiscountPercentageVisibility() {
+
       const discountType = document.getElementById('discountType').value;
       const discountPercentageRow = document.getElementById('discountPercentageRow');
       const discountValueRow = document.getElementById('discountValueRow');
@@ -380,7 +426,6 @@
 
     // Add event listener to the discountType field
     document.getElementById('discountType').addEventListener('change', updateDiscountPercentageVisibility);
-
     // Initialize visibility based on the default selection
     updateDiscountPercentageVisibility(); // This will set the initial state correctly
 
@@ -416,34 +461,34 @@
 
     // Your existing form validation and other scripts...
   });
-//date selecting and matching
-document.addEventListener('DOMContentLoaded', function () {
-  // Function to update the minimum date for end date
-  function updateEndDateMinDate() {
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-  endDateInput.value = '';
-    // Get the selected start date
-    const startDateValue = startDateInput.value;
+  //date selecting and matching
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to update the minimum date for end date
+    function updateEndDateMinDate() {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      endDateInput.value = '';
+      // Get the selected start date
+      const startDateValue = startDateInput.value;
 
-    // Set the minimum date for end date to the selected start date
-    if (startDateValue) {
-      endDateInput.setAttribute('min', startDateValue);
+      // Set the minimum date for end date to the selected start date
+      if (startDateValue) {
+        endDateInput.setAttribute('min', startDateValue);
 
-      // If end date is before the new start date, clear the end date
-      if (endDateInput.value && new Date(endDateInput.value) < new Date(startDateValue)) {
-        endDateInput.value = '';
+        // If end date is before the new start date, clear the end date
+        if (endDateInput.value && new Date(endDateInput.value) < new Date(startDateValue)) {
+          endDateInput.value = '';
+        }
+      } else {
+        // If start date is not selected, clear the minimum date for end date
+        endDateInput.removeAttribute('min');
       }
-    } else {
-      // If start date is not selected, clear the minimum date for end date
-      endDateInput.removeAttribute('min');
     }
-  }
 
-  // Add event listener to the startDate field
-  document.getElementById('startDate').addEventListener('change', updateEndDateMinDate);
+    // Add event listener to the startDate field
+    document.getElementById('startDate').addEventListener('change', updateEndDateMinDate);
 
-  // Initialize visibility and end date handling
-   // This will set the initial state correctly
-});
+    // Initialize visibility and end date handling
+    // This will set the initial state correctly
+  });
 </script>

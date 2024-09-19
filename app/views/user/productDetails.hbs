@@ -99,8 +99,15 @@
         <i class="fas fa-star-half-alt"></i>
         <span>(4.5/5)</span>
       </div>
-      <h2>{{product.price}} Rs <span class="text-muted"><s>400 Rs</s></span></h2>
-      <p>Discount Applied: 25%</p>
+     <div class="product-pricing">
+    {{#if product.discountPercentage}}
+      <h2>Offer Price: ₹{{product.offerPrice}} <span class="text-muted"><s>₹{{product.price}}</s></span></h2>
+      <p>Discount Applied: {{product.discountPercentage}}%</p>
+    {{else}}
+      <h2>Price: ₹{{product.price}}</h2>
+    {{/if}}
+  </div>
+
 
       <p class="highlight">Highlights:</p>
       <ul>
@@ -121,7 +128,7 @@
 
       <p><strong>Available Stock:</strong> {{product.quantity}}</p>
       <p><strong>Reviews:</strong> 120 Reviews</p>
-      <p><strong>Discounts/Coupons Applied:</strong> 10% off with code SAVE10</p>
+      <p><strong>Offer Applied:</strong> {{product.discountPercentage}}% off with code SAVE ₹{{product.saved }}</p>
     </div>
   </div>
 
@@ -160,7 +167,7 @@
           <img src="/{{this.images.[0]}}" class="card-img-top" alt="Related Product">
           <div class="card-body">
             <h5 class="card-title">{{this.productName}}</h5>
-            <p class="card-text">{{this.price}} Rs</p>
+            <p class="card-text">₹{{this.price}} </p>
             <a href="/productDetails/{{this._id}}" class="btn btn-primary">View Details</a>
           </div>
         </div>
